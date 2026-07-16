@@ -16,3 +16,5 @@ def geo_full_report(lat: float, lon: float) -> ResultContract:
         value="aggregated", source="terra_platform", observed_at=now,
         confidence=0.95, status=EpistemicStatus.FACT))
     return contract
+
+# delta change detection connected
