@@ -18,3 +18,5 @@ def geo_full_report(lat: float, lon: float) -> ResultContract:
     return contract
 
 # delta change detection connected
+
+# aquila aviation connected
