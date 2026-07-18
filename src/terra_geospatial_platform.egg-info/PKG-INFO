@@ -1,0 +1,25 @@
+Metadata-Version: 2.4
+Name: terra-geospatial-platform
+Version: 1.0.0
+Summary: Geospatial Intelligence Platform aggregating all geo engines
+Author: Genesis OSINT Team
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pydantic>=2.0.0
+Requires-Dist: genesis-core>=1.0.0
+Requires-Dist: fastapi>=0.100.0
+Requires-Dist: uvicorn>=0.22.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+
+# terra-geospatial-platform
+
+geospatial intelligence platform aggregating bedrock, delta, aquila and nereid.
+
+## install
+
+```bash
+pip install -e .
+```
+
+

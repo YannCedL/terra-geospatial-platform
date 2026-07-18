@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+src/terra_geospatial_platform/__init__.py
+src/terra_geospatial_platform/api.py
+src/terra_geospatial_platform/engine.py
+src/terra_geospatial_platform.egg-info/PKG-INFO
+src/terra_geospatial_platform.egg-info/SOURCES.txt
+src/terra_geospatial_platform.egg-info/dependency_links.txt
+src/terra_geospatial_platform.egg-info/requires.txt
+src/terra_geospatial_platform.egg-info/top_level.txt
+tests/test_terra.py
