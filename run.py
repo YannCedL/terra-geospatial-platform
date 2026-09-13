@@ -11,7 +11,7 @@ def ouvrir_navigateur():
 
 if __name__ == "__main__":
     print("------------------------------------------------------------------")
-    print(" 🌍  Lancement de TERRA Platform Geospatial 360° UI on port 8005")
+    print(" [TERRA] Lancement de TERRA Platform Geospatial 360 UI on port 8005")
     print(" Ouverture du navigateur sur http://localhost:8005")
     print("------------------------------------------------------------------")
     
