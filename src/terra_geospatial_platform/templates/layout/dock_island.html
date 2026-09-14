@@ -1,0 +1,120 @@
+<footer class="dock-container" v-show="!store.zenMode && store.dockVisible && !store.warRoomActive">
+  <div class="dock-bar">
+    <button class="btn-dock-collapse" @click="store.dockVisible = false" title="Masquer la barre de commande (restaurable à tout moment)">✕</button>
+    <!-- Onglet Nexus -->
+    <div v-if="store.currentTab === 'nexus'" class="dock-controls">
+      <input type="text" class="dock-input input-main" v-model="store.inputs.nexus.company" placeholder="Nom de l'entreprise ou SIREN..." @keyup.enter="runActiveModule">
+      <input type="text" class="dock-input input-sub" v-model="store.inputs.nexus.coords" placeholder="GPS optionnel (lat, lon)">
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">⚡ Fusionner le Terrain 360°</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>Interrogation 360°...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Nexus')">📄 Exporter</button>
+    </div>
+
+    <!-- Onglet Site Audit -->
+    <div v-if="store.currentTab === 'site-audit'" class="dock-controls">
+      <input type="text" class="dock-input input-main" v-model="store.inputs.siteAudit.coords" placeholder="GPS actif foncier" @keyup.enter="runActiveModule">
+      <input type="date" class="dock-input input-date" v-model="store.inputs.siteAudit.dateStart">
+      <input type="date" class="dock-input input-date" v-model="store.inputs.siteAudit.dateEnd">
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">🏛️ Auditer l'Actif</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>Audit...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Audit_Actif_Foncier')">📑 Rapport</button>
+    </div>
+
+    <!-- Onglet Arena -->
+    <div v-if="store.currentTab === 'arena'" class="dock-controls">
+      <input type="text" class="dock-input input-main" v-model="store.inputs.arena.company" placeholder="Entreprise cible" @keyup.enter="runActiveModule">
+      <input type="text" class="dock-input input-sub" v-model="store.inputs.arena.coords" placeholder="Point central optionnel (lat, lon)" @keyup.enter="runActiveModule">
+      <select class="dock-input input-select" v-model="store.inputs.arena.radius">
+        <option value="3">3 km</option>
+        <option value="5">5 km</option>
+        <option value="10">10 km</option>
+        <option value="25">25 km</option>
+      </select>
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">⚔️ Analyser l'Arène</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>Arène...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Concurrence_Territoriale')">📊 Matrice</button>
+    </div>
+
+    <!-- Onglet Supply -->
+    <div v-if="store.currentTab === 'supply'" class="dock-controls">
+      <input type="text" class="dock-input input-main" v-model="store.inputs.supply.company" placeholder="Entreprise cible" @keyup.enter="runActiveModule">
+      <input type="text" class="dock-input input-sub" v-model="store.inputs.supply.coords" placeholder="Terminal portuaire (optionnel)" @keyup.enter="runActiveModule">
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">🚢 Surveiller les Flux</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>Calcul...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Surveillance_Supply_Chain')">📦 CSRD</button>
+    </div>
+
+    <!-- Onglet Mobility -->
+    <div v-if="store.currentTab === 'mobility'" class="dock-controls">
+      <input type="text" class="dock-input input-mini" v-model="store.inputs.mobility.companyA" placeholder="Groupe A" @keyup.enter="runActiveModule">
+      <input type="text" class="dock-input input-mini" v-model="store.inputs.mobility.companyB" placeholder="Groupe B" @keyup.enter="runActiveModule">
+      <input type="text" class="dock-input input-sub" v-model="store.inputs.mobility.coords" placeholder="Aéroport/Zone (optionnel)" @keyup.enter="runActiveModule">
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">✈️ Détecter Signaux</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>ADS-B...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Mobilite_Executive')">🛰️ M&A</button>
+    </div>
+
+    <!-- Onglet Forensic -->
+    <div v-if="store.currentTab === 'forensic'" class="dock-controls">
+      <input type="text" class="dock-input input-sub" v-model="store.inputs.forensic.coords" placeholder="Lieu allégué" @keyup.enter="runActiveModule">
+      <input type="datetime-local" class="dock-input input-datetime" v-model="store.inputs.forensic.date">
+      <input type="number" class="dock-input input-num" v-model.number="store.inputs.forensic.hPx" placeholder="H(px)">
+      <input type="number" class="dock-input input-num" v-model.number="store.inputs.forensic.lPx" placeholder="L(px)">
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">🔍 Certifier</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>Analyse...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Attestation_Forensic')">📜 Certif</button>
+    </div>
+
+    <!-- Onglet SIGINT Global -->
+    <div v-if="store.currentTab === 'sigint-global'" class="dock-controls">
+      <input type="text" class="dock-input input-main" v-model="store.inputs.sigint.coords" placeholder="GPS cible" @keyup.enter="runActiveModule">
+      <button type="button" class="btn-dock-run" :class="{ 'is-loading': store.isLoading }" :disabled="store.isLoading" @click="runActiveModule">
+        <span v-if="!store.isLoading">📡 Scanner l'Arsenal</span>
+        <span v-else style="display: flex; align-items: center; gap: 7px;">
+          <span class="dock-spinner"></span>
+          <span>Scan...</span>
+        </span>
+      </button>
+      <button type="button" class="btn-dock-export" @click="exportReport('Audit_SIGINT_Global')">📑 Menaces</button>
+    </div>
+  </div>
+</footer>
+
+<!-- PETIT BOUTON DISCRET POUR RESTAURER LA BARRE DE COMMANDE -->
+<button v-if="!store.zenMode && !store.dockVisible && !store.warRoomActive"
+        class="btn-dock-restore"
+        @click="store.dockVisible = true"
+        title="Restaurer la barre de commande contextuelle">
+  ⚡ Commandes
+</button>
+

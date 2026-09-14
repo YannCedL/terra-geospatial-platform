@@ -1,0 +1,41 @@
+<!-- ================================================================ -->
+<!-- TERRA MISSION PROGRESS PANEL — Suivi temps réel des recherches   -->
+<!-- Glassmorphism • Flottant bas-droite • Étapes + Barre de charge   -->
+<!-- ================================================================ -->
+<transition name="progress-slide">
+  <div v-if="store.progress.active" class="mission-progress-panel">
+    <!-- En-tête -->
+    <div class="mpp-header">
+      <span class="mpp-pulse"></span>
+      <span class="mpp-title" v-text="store.progress.title"></span>
+      <button class="mpp-close" @click="store.progress.active = false">✕</button>
+    </div>
+
+    <!-- Barre de progression globale -->
+    <div class="mpp-bar-track">
+      <div class="mpp-bar-fill" :style="{ width: store.progress.percent + '%' }"></div>
+      <span class="mpp-bar-label" v-text="store.progress.percent + '%'"></span>
+    </div>
+
+    <!-- Liste des étapes -->
+    <ul class="mpp-steps">
+      <li
+        v-for="(step, i) in store.progress.steps"
+        :key="i"
+        class="mpp-step"
+        :class="'step-' + step.status"
+      >
+        <span class="mpp-step-icon">
+          <span v-if="step.status === 'pending'">○</span>
+          <span v-else-if="step.status === 'active'" class="mpp-spinner-tiny"></span>
+          <span v-else-if="step.status === 'done'">✓</span>
+          <span v-else-if="step.status === 'error'">✕</span>
+        </span>
+        <span class="mpp-step-body">
+          <span class="mpp-step-label" v-text="step.label"></span>
+          <span v-if="step.detail" class="mpp-step-detail" v-text="step.detail"></span>
+        </span>
+      </li>
+    </ul>
+  </div>
+</transition>

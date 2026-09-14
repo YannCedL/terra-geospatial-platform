@@ -1,0 +1,40 @@
+<!-- CARTE ARENA CONCURRENCE -->
+<div v-if="store.currentTab === 'arena' && store.results.arena">
+  <div class="spatial-card">
+    <div class="spatial-card-header">
+      <span class="card-title">Rapport de Force Spatial</span>
+      <span class="card-badge badge-cyan">ARENA</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Entreprise Analysée:</span>
+      <span class="data-row-value" v-text="store.results.arena.target_company"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Rayon d'Étude:</span>
+      <span class="data-row-value" v-text="store.inputs.arena.radius + ' km'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Concurrents Directs:</span>
+      <span class="data-row-value" style="color: var(--accent-rose); font-size: 1.1rem;" v-text="store.results.arena.competitors_count"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Densité Sectorielle:</span>
+      <span class="data-row-value" v-text="store.results.arena.density_level"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Concurrent le Plus Proche</span>
+      <span class="card-badge badge-emerald">PROXIMITÉ</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Nom:</span>
+      <span class="data-row-value" v-text="store.results.arena.nearest_competitor?.nom || store.results.arena.nearest_competitor?.nom_complet || 'Aucun'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Distance:</span>
+      <span class="data-row-value" v-text="store.results.arena.nearest_competitor?.distance_m ? (store.results.arena.nearest_competitor.distance_m / 1000).toFixed(2) + ' km' : 'N/A'"></span>
+    </div>
+  </div>
+</div>

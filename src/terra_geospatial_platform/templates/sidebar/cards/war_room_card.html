@@ -1,0 +1,56 @@
+<!-- CARTE WAR ROOM SURVEILLANCE GLOBALE -->
+<div v-if="store.warRoomActive && store.results.warRoom">
+  <div class="spatial-card" style="border-color: var(--accent-rose); box-shadow: 0 0 20px rgba(244, 63, 94, 0.2);">
+    <div class="spatial-card-header">
+      <span class="card-title" style="color: var(--accent-rose);">🚨 BALAYAGE C4ISR MONDIAL</span>
+      <span class="card-badge" :class="store.wsConnected ? 'badge-emerald' : 'badge-rose'" v-text="store.wsConnected ? '⚡ WEBSOCKET DIRECT' : 'SYNC POLLING'"></span>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number" style="color: var(--accent-rose);" v-text="(store.results.warRoom.metrics?.total_aircraft || 0) + (store.results.warRoom.metrics?.total_vessels || 0) + (store.results.warRoom.metrics?.total_cameras || 0)"></div>
+      <div class="hero-stat-label">Vecteurs & Capteurs Actifs Relevés</div>
+    </div>
+  </div>
+
+  <!-- TABLEAU DE BORD DES VECTEURS -->
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Flux Temps Réel Captés</span>
+      <span class="card-badge badge-cyan">OSINT 360°</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">📹 Caméras & CCTV Portuaires :</span>
+      <span class="data-row-value" style="color: var(--accent-purple);" v-text="store.results.warRoom.metrics?.total_cameras || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">✈️ Avions en Vol (OpenSky) :</span>
+      <span class="data-row-value" style="color: var(--accent-amber);" v-text="store.results.warRoom.metrics?.total_aircraft || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">🚢 Navires Marchands (AIS Nereid) :</span>
+      <span class="data-row-value" style="color: var(--accent-cyan);" v-text="store.results.warRoom.metrics?.total_vessels || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">⚡ Séismes USGS Détectés :</span>
+      <span class="data-row-value" style="color: var(--accent-rose);" v-text="store.results.warRoom.metrics?.total_seismic_events || 0"></span>
+    </div>
+  </div>
+
+  <!-- LISTE DES CAMÉRAS OSINT DIRECTEMENT CLIQUABLES -->
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">📹 Caméras Stratégiques Live</span>
+      <span class="card-badge badge-emerald">PIP DISPONIBLE</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px;">
+      <div v-for="cam in store.results.warRoom.cameras" :key="cam.id"
+           style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.2s;"
+           @click="store.activeCamera = cam; store.cameraFullscreen = false;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 700; font-size: 0.78rem; color: #fff;" v-text="cam.title"></span>
+          <span style="font-size: 0.65rem; color: var(--accent-rose); font-weight: 800;">● LIVE</span>
+        </div>
+        <div style="font-size: 0.7rem; color: var(--text-tertiary); margin-top: 3px;" v-text="cam.category + ' • ' + cam.lat.toFixed(2) + ', ' + cam.lon.toFixed(2)"></div>
+      </div>
+    </div>
+  </div>
+</div>

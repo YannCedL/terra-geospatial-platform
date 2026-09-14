@@ -1,0 +1,59 @@
+<!-- CARTE SUPPLY CHAIN & CORRIDORS -->
+<div v-if="store.currentTab === 'supply' && store.results.supply">
+  <div class="spatial-card">
+    <div class="spatial-card-header">
+      <span class="card-title">Surveillance Supply Chain</span>
+      <span class="card-badge badge-emerald">SILKROAD</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Filière Amont:</span>
+      <span class="data-row-value" v-text="store.results.supply.supply_chain?.sector"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Fournisseurs Tier-1:</span>
+      <span class="data-row-value" v-text="store.results.supply.supply_chain?.suppliers_count"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Hubs Stratégiques:</span>
+      <span class="data-row-value" v-text="store.results.supply.supply_chain?.hubs_count"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Résilience:</span>
+      <span class="data-row-value" v-text="(store.results.supply.supply_chain?.resilience_score || 70) + '/100'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Approches Maritimes (AIS)</span>
+      <span class="card-badge badge-cyan">NEREID</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Navires Détectés:</span>
+      <span class="data-row-value" v-text="store.results.supply.maritime_traffic?.total_vessels_detected"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Cargos & Pétroliers:</span>
+      <span class="data-row-value" style="color: var(--accent-amber);" v-text="store.results.supply.maritime_traffic?.cargo_tankers_count"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Navires Suspects (Dark):</span>
+      <span class="data-row-value" :style="{ color: (store.results.supply.maritime_traffic?.dark_vessels_detected > 0) ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontWeight: '700' }" v-text="store.results.supply.maritime_traffic?.dark_vessels_detected || 0"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Fret Aérien & Brouillage GNSS</span>
+      <span class="card-badge badge-amber">AQUILA</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Vols Observés:</span>
+      <span class="data-row-value" v-text="store.results.supply.air_cargo_traffic?.total_flights_detected"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Statut GPS Régional:</span>
+      <span class="data-row-value" :style="{ color: store.results.supply.air_cargo_traffic?.gnss_jamming_status?.includes('ACTIVE') ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontWeight: '700' }" v-text="store.results.supply.air_cargo_traffic?.gnss_jamming_status || 'NOMINAL'"></span>
+    </div>
+  </div>
+</div>

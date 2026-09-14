@@ -1,0 +1,41 @@
+<!-- CARTE FORENSIC & GÉOLOCALISATION D'IMAGES -->
+<div v-if="store.currentTab === 'forensic' && store.results.forensic">
+  <div class="spatial-card" style="border-color: var(--accent-purple);">
+    <div class="spatial-card-header">
+      <span class="card-title">Certificat de Sincérité Physique</span>
+      <span class="card-badge badge-emerald">NOAA</span>
+    </div>
+    <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-emerald); text-align: center; padding: 6px 0;" v-text="store.results.forensic.certificate_of_sincerity?.verdict || 'CONFORME'"></div>
+    <div class="hero-stat-label" style="text-align: center;">Inversion trigonométrique & anti-spoofing</div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Éphémérides Solaires Réelles</span>
+      <span class="card-badge badge-amber">NORTHSTAR</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Élévation Solaire:</span>
+      <span class="data-row-value" v-text="store.results.forensic.solar_forensics?.sun_elevation_deg ? store.results.forensic.solar_forensics.sun_elevation_deg + '°' : 'N/A'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Azimut Solaire:</span>
+      <span class="data-row-value" v-text="store.results.forensic.solar_forensics?.sun_azimuth_deg ? store.results.forensic.solar_forensics.sun_azimuth_deg + '°' : 'N/A'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Vérité Terrain Parcellaire</span>
+      <span class="card-badge badge-emerald">WAYPOINT</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Parcelle ID:</span>
+      <span class="data-row-value" v-text="store.results.forensic.cadastral_ground_truth?.parcel_id || 'Zone publique'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Superficie:</span>
+      <span class="data-row-value" v-text="store.results.forensic.cadastral_ground_truth?.surface_m2 ? store.results.forensic.cadastral_ground_truth.surface_m2 + ' m²' : 'N/A'"></span>
+    </div>
+  </div>
+</div>

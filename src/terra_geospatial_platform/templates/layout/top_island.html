@@ -1,0 +1,56 @@
+<!-- BARRE SUPÉRIEURE FLOTTANTE (GLASS ISLANDS) -->
+<header class="spatial-top-bar" :class="{ 'zen-active': store.zenMode }">
+  <!-- MARQUE & MANIFESTE -->
+  <div class="brand-island" v-show="!store.zenMode">
+    <div class="logo-container" @click="store.homeScreenActive = true" title="Revenir au Hub d'Accueil Tactique">
+      <img src="/static/terra_prism_logo.png" alt="TERRA" class="logo-img">
+    </div>
+    <div class="brand-text" @click="store.homeScreenActive = true" style="cursor: pointer;" title="Revenir au Hub d'Accueil Tactique">
+      <h1>TERRA</h1>
+      <p>GEOINT & Décision 360°</p>
+    </div>
+    <button class="btn-hub-return" @click="store.homeScreenActive = true" title="Retourner au Hub de Mission">
+      🏠 Hub
+    </button>
+  </div>
+
+  <!-- SÉLECTEUR D'ESPACES MÉTIERS (PILLS DESKTOP / DRAWER MOBILE) -->
+  <nav class="module-nav" v-show="!store.zenMode" :class="{ 'mobile-open': store.mobileNavOpen }">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">SÉLECTION DU MODULE GEOINT</span>
+      <button class="mobile-nav-close" @click="store.mobileNavOpen = false">✕</button>
+    </div>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'nexus' }" @click="switchTab('nexus')">🌐 Cockpit</button>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'site-audit' }" @click="switchTab('site-audit')">🏛️ Foncier & Actifs</button>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'arena' }" @click="switchTab('arena')">⚔️ Concurrence</button>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'supply' }" @click="switchTab('supply')">🚢 Supply & Mer</button>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'mobility' }" @click="switchTab('mobility')">✈️ Aviation & M&A</button>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'forensic' }" @click="switchTab('forensic')">🔍 Forensic</button>
+    <button class="nav-pill" :class="{ active: store.currentTab === 'sigint-global' }" @click="switchTab('sigint-global')">📡 SIGINT</button>
+  </nav>
+
+  <!-- BOUTON WAR ROOM ULTIME & ACTIONS RAPIDES -->
+  <div class="top-actions">
+    <button class="btn-war-room" v-show="!store.zenMode" :class="{ 'pulse-active': store.warRoomActive }" @click="toggleWarRoom" title="Activer le mode Surveillance Mondiale C4ISR">
+      <span class="war-icon">🚨</span>
+      <span class="war-label" v-text="store.warRoomActive ? 'WAR ROOM : ACTIVE' : 'WAR ROOM'"></span>
+    </button>
+
+    <!-- BADGE WEBSOCKET LIVE STREAMING -->
+    <div v-if="store.warRoomActive && !store.zenMode" class="ws-live-indicator" :class="store.wsConnected ? 'connected' : 'reconnecting'" :title="store.wsConnected ? 'Flux WebSocket Actif (Temps Réel)' : 'Reconnexion WebSocket en cours...'">
+      <span class="ws-dot"></span>
+      <span v-text="store.wsConnected ? 'LIVE WS' : 'CONNEXION...'"></span>
+    </div>
+
+    <!-- BOUTON D'ACCÈS RAPIDE AU PANNEAU D'INTELLIGENCE (MOBILE & TABLETTE) -->
+    <button class="btn-mobile-sidebar" v-show="!store.zenMode" @click="toggleSidebar(!store.sidebarOpen)" :class="{ 'active': store.sidebarOpen, 'has-alerts': store.warRoomActive }" title="Panneau d'intelligence">
+      <span>📊</span>
+      <span v-if="store.warRoomActive && store.results.warRoom" class="mobile-sidebar-badge" v-text="(store.results.warRoom.metrics?.total_aircraft || 0) + (store.results.warRoom.metrics?.total_vessels || 0)"></span>
+    </button>
+
+    <!-- BOUTON BURGER POUR MOBILES & TABLETTES -->
+    <button class="btn-mobile-menu" v-show="!store.zenMode" @click="toggleMobileNav" title="Menu des modules">
+      <span>☰</span>
+    </button>
+  </div>
+</header>

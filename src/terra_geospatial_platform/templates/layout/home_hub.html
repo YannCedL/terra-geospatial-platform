@@ -1,0 +1,138 @@
+<!-- ===================================================================== -->
+<!-- TERRA MISSION HUB — PAGE D'ACCUEIL TACTIQUE ÉPURÉE & GLASSMORPHISM -->
+<!-- Permet le choix de la mission et la préparation asynchrone des moteurs -->
+<!-- ===================================================================== -->
+<div v-if="store.homeScreenActive" class="home-hub-overlay">
+  <!-- Grille de fond subtile et lueur ambiante -->
+  <div class="home-hub-backdrop"></div>
+
+  <div class="home-hub-container">
+    <!-- En-tête de marque -->
+    <header class="home-hub-header">
+      <div class="home-hub-logo-box">
+        <img src="/static/terra_prism_logo.png" alt="TERRA" class="home-hub-logo">
+      </div>
+      <div class="home-hub-titles">
+        <div class="home-badge">POSTE DE COMMANDEMENT STRATÉGIQUE & GEOINT</div>
+        <h1 class="home-title">TERRA PLATFORM</h1>
+        <p class="home-subtitle">Sélectionnez un objectif opérationnel pour initialiser la projection spatiale</p>
+      </div>
+    </header>
+
+    <!-- Barre d'entrée de mission universelle -->
+    <div class="home-search-section">
+      <div class="home-search-wrapper">
+        <span class="home-search-icon">🔍</span>
+        <input
+          type="text"
+          class="home-search-input"
+          v-model="store.launcherQuery"
+          placeholder="Entrez une entreprise cible (ex: Airbus, Safran, LVMH) ou des coordonnées GPS..."
+          @keyup.enter="launchQuickMission"
+          autofocus
+        >
+        <button class="home-search-action-btn" @click="launchQuickMission">
+          <span>Déployer la Carte</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+      <div class="home-quick-tags">
+        <span class="quick-tag-label">Cibles fréquentes :</span>
+        <button class="quick-tag-pill" @click="setTarget('Airbus')">Airbus</button>
+        <button class="quick-tag-pill" @click="setTarget('Safran')">Safran</button>
+        <button class="quick-tag-pill" @click="setTarget('TotalEnergies')">TotalEnergies</button>
+        <button class="quick-tag-pill" @click="setTarget('LVMH')">LVMH</button>
+      </div>
+    </div>
+
+    <!-- Grille des 6 Missions Métiers Clés -->
+    <div class="home-missions-grid">
+      <!-- Mission 1 : Nexus 360° -->
+      <div class="mission-card" @click="launchSpecificMission('nexus')">
+        <div class="mission-card-badge badge-cyan">DUE DILIGENCE</div>
+        <div class="mission-card-icon">🌐</div>
+        <h3 class="mission-card-title">Nexus Global 360°</h3>
+        <p class="mission-card-desc">Audit patrimonial intégral, exposition aux risques naturels, cadastre et cartographie des sites mondiaux.</p>
+        <div class="mission-card-footer">
+          <span class="mission-services">ODYSSEY • ARGUS • GEORISQUES</span>
+          <span class="mission-action-cta">Lancer →</span>
+        </div>
+      </div>
+
+      <!-- Mission 2 : Arène Concurrentielle -->
+      <div class="mission-card highlight-card" @click="launchSpecificMission('arena')">
+        <div class="mission-card-badge badge-purple">STRATÉGIE SECTORIELLE</div>
+        <div class="mission-card-icon">⚔️</div>
+        <h3 class="mission-card-title">Arène Concurrentielle</h3>
+        <p class="mission-card-desc">Analyse spatiale des concurrents contigus, zones de chalandise, détection de zones blanches et domination territoriale.</p>
+        <div class="mission-card-footer">
+          <span class="mission-services">ARENA • SIRENE • GLEIF</span>
+          <span class="mission-action-cta">Lancer →</span>
+        </div>
+      </div>
+
+      <!-- Mission 3 : Supply & Maritime -->
+      <div class="mission-card" @click="launchSpecificMission('supply')">
+        <div class="mission-card-badge badge-blue">LOGISTIQUE CRITIQUE</div>
+        <div class="mission-card-icon">🚢</div>
+        <h3 class="mission-card-title">Supply & Flux Maritimes</h3>
+        <p class="mission-card-desc">Traçabilité des navires marchands AIS aux abords des terminaux, résilience supply-chain et détection dark vessels.</p>
+        <div class="mission-card-footer">
+          <span class="mission-services">NEREID • SILKROAD • AISSTREAM</span>
+          <span class="mission-action-cta">Lancer →</span>
+        </div>
+      </div>
+
+      <!-- Mission 4 : Mobilité Exécutive & M&A -->
+      <div class="mission-card" @click="launchSpecificMission('mobility')">
+        <div class="mission-card-badge badge-amber">SIGNAUX FAIBLES M&A</div>
+        <div class="mission-card-icon">✈️</div>
+        <h3 class="mission-card-title">Mobilité Exécutive & Jets</h3>
+        <p class="mission-card-desc">Surveillance ADS-B des flottes d'affaires, coprésences aéroportuaires et aéroports d'affaires privés.</p>
+        <div class="mission-card-footer">
+          <span class="mission-services">AQUILA • OPENSKY • BEDROCK</span>
+          <span class="mission-action-cta">Lancer →</span>
+        </div>
+      </div>
+
+      <!-- Mission 5 : Foncier & Actifs -->
+      <div class="mission-card" @click="launchSpecificMission('site-audit')">
+        <div class="mission-card-badge badge-emerald">SURVEILLANCE DE SITE</div>
+        <div class="mission-card-icon">🏛️</div>
+        <h3 class="mission-card-title">Audit Foncier & RSO</h3>
+        <p class="mission-card-desc">Détection de changements multi-temporels par satellite, réseaux vitaux (énergie/eau) et conformité cadastrale.</p>
+        <div class="mission-card-footer">
+          <span class="mission-services">SENTINEL-2 • CADASTRE • DELTA</span>
+          <span class="mission-action-cta">Lancer →</span>
+        </div>
+      </div>
+
+      <!-- Mission 6 : War Room Surveillance Mondiale -->
+      <div class="mission-card war-room-card" @click="launchWarRoomMission()">
+        <div class="mission-card-badge badge-red">LIVE SURVEILLANCE</div>
+        <div class="mission-card-icon">🚨</div>
+        <h3 class="mission-card-title">War Room & C4ISR</h3>
+        <p class="mission-card-desc">Tableau de veille mondiale en temps réel : caméras CCTV planétaires, brouillage GNSS, météo spatiale et séismes.</p>
+        <div class="mission-card-footer">
+          <span class="mission-services">SIGINT • SEISMIC • GNSS JAM</span>
+          <span class="mission-action-cta">Ouvrir la salle →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pied de page statutaire avec surveillance des tâches d'arrière-plan -->
+    <footer class="home-hub-footer">
+      <div class="home-status-indicator">
+        <span class="status-pulse-dot" :class="{ 'ready': store.bgServicesReady }"></span>
+        <span class="status-text">
+          <b v-if="store.bgServicesReady">Systèmes opérationnels (14/14 Microservices prêts)</b>
+          <b v-else>Préchauffage et synchronisation des flux en arrière-plan...</b>
+        </span>
+      </div>
+      <div class="home-skip-link" @click="store.homeScreenActive = false">
+        <span>Passer directement à la carte vierge</span>
+        <span class="arrow-tiny">↗</span>
+      </div>
+    </footer>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+<!-- CONTENEUR FLOTTANT INFÉRIEUR : LÉGENDE TACTIQUE & MENU DE CONFIGURATION CARTE -->
+<div class="spatial-bottom-cluster" v-show="!store.zenMode">
+
+  <!-- PETIT MENU DÉROULANT AU-DESSUS DE LA LÉGENDE -->
+  <div v-show="store.mapControlsOpen" class="spatial-map-controls-popover">
+    <div class="popover-header">
+      <span class="popover-title">⚙️ AFFICHAGE & PROJECTION</span>
+      <button class="popover-close-btn" @click="store.mapControlsOpen = false">✕</button>
+    </div>
+
+    <div class="popover-row">
+      <span class="popover-label">Moteur :</span>
+      <select class="view-select select-projection" :value="store.viewMode" @change="switchViewMode($event.target.value)" title="Changer le mode de projection">
+        <option value="globe">🌍 Globe 3D</option>
+        <option value="2d">🗺️ Plan 2D</option>
+      </select>
+    </div>
+
+    <div class="popover-row">
+      <span class="popover-label">Fond :</span>
+      <select class="view-select select-baselayer" :value="store.baseLayer" @change="changeBaseLayer($event.target.value)" title="Fond cartographique">
+        <option value="satellite">🛰️ Satellite</option>
+        <option value="dark">🌑 Dark</option>
+        <option value="osm">🗺️ OSM</option>
+        <option value="terrain">🏔️ Relief</option>
+      </select>
+    </div>
+
+    <div class="popover-row">
+      <span class="popover-label">Optique :</span>
+      <select class="view-select select-shader" :value="store.shader" @change="changeShader($event.target.value)" title="Filtre optique">
+        <option value="normal">👁️ Normal</option>
+        <option value="flir">🔥 FLIR</option>
+        <option value="nvg">🟢 NVG</option>
+        <option value="crt">📟 CRT</option>
+      </select>
+    </div>
+
+    <div class="popover-actions">
+      <!-- BOUTON IMMERSION TOTALE (ZEN MODE) -->
+      <button class="btn-popover-action" :class="{ 'active': store.zenMode }" @click="toggleZenMode" :title="store.zenMode ? 'Quitter le mode Immersion' : 'Mode Immersion Totale'">
+        <span>🌌 Immersion</span>
+      </button>
+
+      <!-- BOUTON PLEIN ÉCRAN MATÉRIEL -->
+      <button class="btn-popover-action" @click="toggleFullscreen" :title="store.isFullscreen ? 'Quitter le plein écran' : 'Plein écran natif'">
+        <span v-text="store.isFullscreen ? '⤓ Fenêtre' : '⛶ Plein écran'"></span>
+      </button>
+
+      <!-- BOUTON MANIFESTE TERRA -->
+      <button class="btn-popover-action" @click="openManifest" title="Manifeste TERRA">
+        <span>📜 Manifeste</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- LÉGENDE CARTOGRAPHIQUE FLOTTANTE TACTIQUE AVEC BOUTON MENU CONFIGURATION -->
+  <div class="spatial-legend" :class="{ 'minimized': store.legendMinimized }">
+    <div class="legend-header">
+      <div class="legend-header-left" @click="toggleLegend">
+        <span class="legend-title">🧭 LÉGENDE TACTIQUE</span>
+        <button class="legend-toggle-btn" v-text="store.legendMinimized ? '▲' : '▼'"></button>
+      </div>
+
+      <!-- PETIT BOUTON POUR OUVRIR LE MENU DE RÉGLAGES AU-DESSUS -->
+      <button class="btn-map-settings-toggle"
+              :class="{ 'active': store.mapControlsOpen }"
+              @click="toggleMapControls"
+              title="Configurer l'affichage de la carte (Globe/2D, Satellite, Filtres)">
+        <span>⚙️ Carte</span>
+      </button>
+    </div>
+
+    <div class="legend-items" v-show="!store.legendMinimized">
+      <div class="legend-row">
+        <span class="legend-icon" style="font-size: 1rem;">📹</span>
+        <span class="legend-text">Caméra / Webcam OSINT</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-icon" style="font-size: 1rem;">✈️</span>
+        <span class="legend-text">Avion Civil / Jet OpenSky</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-icon" style="font-size: 1rem;">🚢</span>
+        <span class="legend-text">Navire Cargo / Pétrolier AIS</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-icon" style="font-size: 1rem;">⚡</span>
+        <span class="legend-text">Séisme USGS (24h)</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-icon" style="font-size: 1rem;">🔥</span>
+        <span class="legend-text">Anomalie Thermique (NASA)</span>
+      </div>
+      <div class="legend-row">
+        <span class="legend-icon" style="font-size: 1rem;">🏢</span>
+        <span class="legend-text">Site Entreprise / Actif Foncier</span>
+      </div>
+    </div>
+  </div>
+
+</div>

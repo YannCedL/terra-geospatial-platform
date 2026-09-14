@@ -1,0 +1,53 @@
+<!-- PANNEAU LATÉRAL FLOTTANT D'INTELLIGENCE & KPI -->
+<aside class="spatial-sidebar" v-show="!store.zenMode" :class="{ 'collapsed': !store.sidebarOpen }">
+  <!-- EN-TÊTE SIDEBAR -->
+  <div class="sidebar-header">
+    <div class="sidebar-title-group">
+      <span class="card-badge badge-cyan" v-text="currentTabBadge"></span>
+      <h2 class="sidebar-header-title" style="margin-top: 4px;" v-text="currentTabTitle"></h2>
+    </div>
+    <button class="toggle-sidebar-btn" @click="toggleSidebar(false)" title="Replier le panneau">
+      ✕
+    </button>
+  </div>
+
+  <!-- CORPS DU PANNEAU (SCROLLABLE) -->
+  <div class="sidebar-body">
+    <!-- ÉTAT DE CHARGEMENT ACTIF ET VISIBLE -->
+    <div v-if="store.isLoading" class="spatial-card loading-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="card-title" style="color: var(--accent-cyan);">⚡ FUSION GÉOSPATIALE 360°</span>
+        <span class="dock-spinner"></span>
+      </div>
+      <div class="data-row-label" style="color: #fff; font-size: 0.78rem;">
+        Interrogation simultanée des 7 sous-moteurs (SIRENE, GLEIF, Cadastre, Géorisques, Supply, ADS-B)...
+      </div>
+      <div class="loading-progress-bar">
+        <div class="loading-progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- ERREUR ÉVENTUELLE -->
+    <div v-if="store.errorMessage" class="spatial-card" style="border-color: var(--accent-rose);">
+      <div class="card-title" style="color: var(--accent-rose);">Erreur Système</div>
+      <div class="data-row-value" style="color: var(--accent-rose); font-size: 0.8rem;" v-text="store.errorMessage"></div>
+    </div>
+
+    <!-- CARTES MÉTIERS CONDITIONNELLES PAR MODULE -->
+    <div v-if="!store.isLoading && !store.errorMessage">
+      {% include "sidebar/cards/war_room_card.html" %}
+      {% include "sidebar/cards/nexus_card.html" %}
+      {% include "sidebar/cards/site_audit_card.html" %}
+      {% include "sidebar/cards/arena_card.html" %}
+      {% include "sidebar/cards/supply_card.html" %}
+      {% include "sidebar/cards/mobility_card.html" %}
+      {% include "sidebar/cards/forensic_card.html" %}
+      {% include "sidebar/cards/sigint_card.html" %}
+    </div>
+  </div>
+</aside>
+
+<!-- BOUTON DE RÉOUVERTURE DU PANNEAU LORSQU'IL EST REPLIÉ -->
+<button v-show="!store.sidebarOpen" class="reopen-sidebar-btn" @click="toggleSidebar(true)" title="Ouvrir le panneau d'intelligence">
+  ◀
+</button>

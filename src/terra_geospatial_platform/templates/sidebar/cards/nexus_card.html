@@ -1,0 +1,119 @@
+<!-- CARTE NEXUS COCKPIT -->
+<div v-if="store.currentTab === 'nexus' && store.results.nexus">
+  <div class="spatial-card" style="border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.06);">
+    <div class="spatial-card-header">
+      <span class="card-title">🎯 Cible Investigée</span>
+      <span class="card-badge badge-cyan" v-text="store.results.nexus.company.toUpperCase()"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Raison Sociale :</span>
+      <span class="data-row-value" style="font-weight: 700; color: #38bdf8;" v-text="store.results.nexus.compData?.headquarter?.name || store.results.nexus.company"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Siège Répertorié :</span>
+      <span class="data-row-value" v-text="store.results.nexus.compData?.headquarter?.city ? (store.results.nexus.compData.headquarter.city + ' (' + store.results.nexus.compData.headquarter.country_name + ')') : 'International'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Sites / Usines :</span>
+      <span class="data-row-value" v-text="(store.results.nexus.compData?.sites || []).length + ' sites actifs'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">🏛️ Cadastre Parcellaire</span>
+      <span class="card-badge badge-emerald">WAYPOINT</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Parcelle ID:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.cadastre_parcel?.parcel_id || 'N/A'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Superficie:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.cadastre_parcel?.surface_m2 ? store.results.nexus.reportData.cadastre_parcel.surface_m2.toLocaleString() + ' m²' : 'N/A'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Commune:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.cadastre_parcel?.commune_nom || 'N/A'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">⚠️ Exposition aux Risques</span>
+      <span class="card-badge badge-cyan">ORBIT</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Niveau Global:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.risk_exposure?.level || 'Modéré'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Arrêtés CatNat:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.risk_exposure?.catnat_count || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Site SEVESO:</span>
+      <span class="data-row-value" :style="{ color: store.results.nexus.reportData?.risk_exposure?.seveso ? 'var(--accent-rose)' : 'var(--accent-emerald)' }" v-text="store.results.nexus.reportData?.risk_exposure?.seveso ? '🚨 OUI' : 'NON'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">🐪 Supply Chain Amont</span>
+      <span class="card-badge badge-emerald">SILKROAD</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Filière:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.supply_chain?.sector || 'Général'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Fournisseurs Tier-1:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.supply_chain?.suppliers_count || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Résilience:</span>
+      <span class="data-row-value" v-text="(store.results.nexus.reportData?.supply_chain?.resilience_score || 70) + '/100'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">⚔️ Arène Concurrentielle</span>
+      <span class="card-badge badge-cyan">ARENA</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Concurrents Proches:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.competitive_geography?.competitors_count || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Densité:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.competitive_geography?.density_level || 'Moyenne'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">✈️ Espace Aérien Live</span>
+      <span class="card-badge badge-amber">AQUILA</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Vols Détectés:</span>
+      <span class="data-row-value" v-text="(store.results.nexus.reportData?.live_flights || []).length"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">🌌 Météo Spatiale & GNSS</span>
+      <span class="card-badge badge-cyan">NOAA SWPC</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Indice Kp Mondial:</span>
+      <span class="data-row-value" style="color: var(--accent-amber);" v-text="store.results.nexus.reportData?.space_weather?.kp_index || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Niveau d'Alerte:</span>
+      <span class="data-row-value" v-text="store.results.nexus.reportData?.space_weather?.storm_level || 'G0_QUIET'"></span>
+    </div>
+  </div>
+</div>

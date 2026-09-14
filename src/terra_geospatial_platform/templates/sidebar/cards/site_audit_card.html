@@ -1,0 +1,100 @@
+<!-- CARTE AUDIT FONCIER & RISQUES -->
+<div v-if="store.currentTab === 'site-audit' && store.results.siteAudit">
+  <div class="spatial-card" style="border-color: var(--accent-emerald);">
+    <div class="spatial-card-header">
+      <span class="card-title">Valorisation Conformité d'Actif</span>
+      <span class="card-badge badge-emerald">SCORE</span>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-number" style="color: var(--accent-emerald);" v-text="(store.results.siteAudit.asset_compliance_score || 85) + ' / 100'"></div>
+      <div class="hero-stat-label">Index certifié comités & assurances</div>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">🏛️ Foncier & Cadastre</span>
+      <span class="card-badge badge-emerald">WAYPOINT</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Parcelle ID:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.cadastre?.parcel_id || 'N/A'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Superficie Légale:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.cadastre?.surface_m2 ? store.results.siteAudit.cadastre.surface_m2.toLocaleString() + ' m²' : 'N/A'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Commune:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.cadastre?.commune_nom || 'N/A'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">⚡ Réseaux Vitaux (1.5km)</span>
+      <span class="card-badge badge-cyan">BEDROCK</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Infrastructures:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.vital_networks?.total_infrastructure_elements || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Haute Tension:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.vital_networks?.has_high_voltage ? '✅ OUI' : 'NON'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Voie Ferrée:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.vital_networks?.has_railway ? '✅ OUI' : 'NON'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">⚠️ Risques Naturels & SEVESO</span>
+      <span class="card-badge badge-amber">ORBIT</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Arrêtés CatNat:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.environmental_exposure?.catnat_count || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Installations ICPE:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.environmental_exposure?.icpe_count || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Statut SEVESO:</span>
+      <span class="data-row-value" :style="{ color: store.results.siteAudit.environmental_exposure?.seveso_present ? 'var(--accent-rose)' : 'var(--accent-emerald)' }" v-text="store.results.siteAudit.environmental_exposure?.seveso_present ? '🚨 SEVESO' : 'SÉCURISÉ'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">🛰️ Mutation du Bâti</span>
+      <span class="card-badge badge-cyan">DELTA</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Changement Détecté:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.satellite_mutations?.detected ? 'OUI' : 'NON'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Surface Modifiée:</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.satellite_mutations?.area_changed_m2 ? store.results.siteAudit.satellite_mutations.area_changed_m2.toLocaleString() + ' m²' : '0 m²'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">⚡ Télémétrie Sismique (24H)</span>
+      <span class="card-badge badge-amber">USGS LIVE</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Séismes (300km):</span>
+      <span class="data-row-value" v-text="store.results.siteAudit.live_seismic_telemetry?.events_detected_24h || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Alerte Structurelle:</span>
+      <span class="data-row-value" :style="{ color: store.results.siteAudit.live_seismic_telemetry?.critical_alert ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontWeight: '700' }" v-text="store.results.siteAudit.live_seismic_telemetry?.critical_alert ? '🚨 RISQUE' : 'NOMINALE'"></span>
+    </div>
+  </div>
+</div>

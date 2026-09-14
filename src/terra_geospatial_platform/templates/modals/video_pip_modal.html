@@ -1,0 +1,51 @@
+<!-- MODALE FLOTTANTE DE STREAMING VIDÉO PIP & CCTV OSINT -->
+<div v-if="store.activeCamera" class="pip-video-container" :class="{ 'fullscreen': store.cameraFullscreen }">
+  <div class="pip-header">
+    <div class="pip-title-group">
+      <span class="pip-badge-live">● EN DIRECT</span>
+      <h3 class="pip-title" v-text="store.activeCamera.title"></h3>
+    </div>
+    <div class="pip-controls">
+      <button class="pip-btn" @click="toggleCameraFullscreen" :title="store.cameraFullscreen ? 'Réduire' : 'Plein écran'">
+        <span v-text="store.cameraFullscreen ? '🗗' : '⛶'"></span>
+      </button>
+      <button class="pip-btn pip-close" @click="closeCamera" title="Fermer le flux">✕</button>
+    </div>
+  </div>
+
+  <div class="pip-body">
+    <div class="video-wrapper">
+      <!-- LECTEUR HYBRIDE : IFRAME WEBCAM DIRECTE OU FICHIER VIDÉO -->
+      <iframe v-if="store.activeCamera.stream_type === 'iframe'"
+              :key="'iframe-' + store.activeCamera.id"
+              :src="store.activeCamera.video_url"
+              class="camera-iframe"
+              frameborder="0"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowfullscreen>
+      </iframe>
+      <video v-else
+             :key="'video-' + store.activeCamera.id"
+             :src="store.activeCamera.video_url"
+             autoplay
+             loop
+             muted
+             controls
+             playsinline
+             class="camera-video">
+      </video>
+    </div>
+
+    <div class="pip-meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Localisation : </span>
+        <span class="meta-val" v-text="store.activeCamera.lat.toFixed(4) + ', ' + store.activeCamera.lon.toFixed(4)"></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Catégorie : </span>
+        <span class="meta-val" v-text="store.activeCamera.category"></span>
+      </div>
+      <p class="meta-desc" v-text="store.activeCamera.description"></p>
+    </div>
+  </div>
+</div>

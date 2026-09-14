@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TERRA — Plateforme Cartographique & Renseignement Géospatial 360°</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
+  <link rel="shortcut icon" href="/static/favicon.ico" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-primary: #070b12;
+      --bg-card: rgba(15, 23, 42, 0.88);
+      --border-color: rgba(56, 189, 248, 0.2);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-purple: #a855f7;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, sans-serif;
+      margin: 0;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+    .title-group { display: flex; align-items: center; gap: 12px; }
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--accent-cyan);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.35);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .logo-badge:hover {
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.65);
+      transform: scale(1.05);
+    }
+    .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6));
+    }
+    .status-tags {
+
+      display: flex;
+      gap: 8px;
+    }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-green { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
+    .tag-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+    .tag-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+
+    /* Onglets Métiers JTBD */
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+    .nav-tab {
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid transparent;
+      border-bottom: none;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .nav-tab:hover {
+      color: var(--text-main);
+      background: rgba(30, 41, 59, 0.7);
+    }
+    .nav-tab.active {
+      color: var(--accent-cyan);
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      border-bottom: 2px solid var(--accent-cyan);
+    }
+
+    .tab-controls {
+      display: none;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      align-items: center;
+    }
+    .tab-controls.active {
+      display: flex;
+    }
+
+    .input-box {
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-color);
+      color: white;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .input-box:focus { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); }
+    .btn-action {
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-action:hover { background: linear-gradient(135deg, #0369a1, #075985); }
+    .btn-export {
+      padding: 8px 14px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid var(--accent-emerald);
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .btn-export:hover { background: rgba(16, 185, 129, 0.3); }
+
+    .main-workspace {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    }
+
+    .intel-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+    .panel-card {
+      background: rgba(2, 6, 23, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .panel-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+    .metric-label { color: var(--text-muted); }
+    .metric-value { font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+
+    .leaflet-popup-content-wrapper {
+      background: #090e17;
+      color: #f1f5f9;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 8px;
+    }
+    .leaflet-popup-tip { background: #090e17; }
+
+    /* Tactical Shader Filters */
+    .shader-flir {
+      filter: contrast(180%) invert(100%) hue-rotate(180deg) saturate(250%) !important;
+    }
+    .shader-nvg {
+      filter: contrast(160%) brightness(110%) hue-rotate(90deg) saturate(300%) !important;
+    }
+    .shader-crt {
+      filter: contrast(130%) brightness(95%) sepia(20%) !important;
+    }
+    .shader-select {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--accent-cyan);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Modal Manifeste TERRA */
+    .manifest-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(2, 6, 23, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    .manifest-modal.active { display: flex; }
+    .manifest-card {
+      background: #090e17;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 90%;
+      padding: 24px;
+      box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
+      position: relative;
+      text-align: center;
+    }
+    .manifest-close {
+      position: absolute;
+      top: 14px; right: 18px;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .manifest-close:hover { color: white; }
+  </style>
+
+
+</head>
+<body>
+  <div class="header">
+    <div class="title-group">
+      <div class="logo-badge" title="Cliquer pour voir le Manifeste Cosmique TERRA" onclick="openManifest()">
+        <img src="/static/terra_prism_logo.png" alt="TERRA" class="logo-img">
+      </div>
+
+      <div>
+        <h1 style="margin:0; font-size: 1.25rem; font-weight: 700; letter-spacing: 0.4px;">TERRA — SUITE DÉCISIONNELLE GÉOSPATIALE & GEOINT</h1>
+        <p style="color: var(--text-muted); margin: 2px 0 0 0; font-size: 0.76rem;">C4ISR & Corporate Due Diligence unifiés par cas d'usage métiers (Zero Fake Data)</p>
+      </div>
+    </div>
+
+    <div class="status-tags">
+      <span class="tag tag-green">10 MOTEURS INTÉGRÉS</span>
+      <span class="tag tag-blue">100% ZERO FAKE DATA</span>
+      <select id="shaderMode" class="shader-select" onchange="changeTacticalShader(this.value)">
+        <option value="normal">👁️ VISION STANDARD</option>
+        <option value="flir">🔥 FLIR THERMIQUE</option>
+        <option value="nvg">🟢 NVG MILITAIRE</option>
+        <option value="crt">📟 C4ISR CRT</option>
+      </select>
+      <span class="tag tag-amber" id="activeModuleTag">GLOBAL NEXUS</span>
+    </div>
+  </div>
+
+
+  <!-- Barre de sélection des onglets métiers -->
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('nexus')">🌐 Le Cockpit Global (Nexus)</div>
+    <div class="nav-tab" onclick="switchTab('site-audit')">🏛️ 1. Tactical Site Audit</div>
+    <div class="nav-tab" onclick="switchTab('arena')">⚔️ 2. Competitive Arena</div>
+    <div class="nav-tab" onclick="switchTab('supply')">🚢 3. Supply & Flow Tracker</div>
+    <div class="nav-tab" onclick="switchTab('mobility')">✈️ 4. Executive Mobility</div>
+    <div class="nav-tab" onclick="switchTab('forensic')">🔍 5. Forensic Studio</div>
+    <div class="nav-tab" onclick="switchTab('sigint-global')">📡 6. SIGINT & Alertes Globales</div>
+  </div>
+
+
+  <!-- Contrôles Onglet 0 : Global Nexus -->
+  <div id="ctrl-nexus" class="tab-controls active">
+    <input type="text" id="nexusCompany" class="input-box" style="width: 220px;" placeholder="Entreprise cible (ex: Zara)..." value="Zara">
+    <input type="text" id="nexusCoords" class="input-box" style="width: 180px;" placeholder="GPS (lat, lon)" value="48.8566, 2.3522">
+    <button class="btn-action" onclick="execNexus()">⚡ FUSIONNER LE TERRAIN 360°</button>
+    <button class="btn-export" onclick="exportReport('Nexus')">📄 EXPORTER LE BRIEFING</button>
+  </div>
+
+  <!-- Contrôles Onglet 1 : Site Audit -->
+  <div id="ctrl-site-audit" class="tab-controls">
+    <input type="text" id="siteAuditCoords" class="input-box" style="width: 200px;" placeholder="GPS de l'actif foncier" value="48.8566, 2.3522">
+    <input type="date" id="siteAuditDateStart" class="input-box" value="2021-01-15">
+    <input type="date" id="siteAuditDateEnd" class="input-box" value="2024-01-15">
+    <button class="btn-action" onclick="execSiteAudit()">🏛️ AUDITER L'ACTIF FONCIER</button>
+    <button class="btn-export" onclick="exportReport('Audit_Actif_Foncier')">📑 RAPPORT DE VALORISATION (PDF)</button>
+  </div>
+
+  <!-- Contrôles Onglet 2 : Competitive Arena -->
+  <div id="ctrl-arena" class="tab-controls">
+    <input type="text" id="arenaCompany" class="input-box" style="width: 180px;" placeholder="Entreprise" value="Zara">
+    <input type="text" id="arenaCoords" class="input-box" style="width: 160px;" placeholder="Point central" value="48.8566, 2.3522">
+    <select id="arenaRadius" class="input-box">
+      <option value="3">Rayon 3 km</option>
+      <option value="5" selected>Rayon 5 km</option>
+      <option value="10">Rayon 10 km</option>
+      <option value="25">Rayon 25 km</option>
+    </select>
+    <button class="btn-action" onclick="execArena()">⚔️ ANALYSER LA CONCURRENCE</button>
+    <button class="btn-export" onclick="exportReport('Concurrence_Territoriale')">📊 MATRICE DE DOMINANCE</button>
+  </div>
+
+  <!-- Contrôles Onglet 3 : Supply & Flow Tracker -->
+  <div id="ctrl-supply" class="tab-controls">
+    <input type="text" id="supplyCompany" class="input-box" style="width: 180px;" placeholder="Entreprise cible" value="Zara">
+    <input type="text" id="supplyTerminalCoords" class="input-box" style="width: 160px;" placeholder="Terminal portuaire" value="49.49, 0.10">
+    <button class="btn-action" onclick="execSupplyFlow()">🚢 SURVEILLER LES FLUX DE FRET</button>
+    <button class="btn-export" onclick="exportReport('Surveillance_Supply_Chain')">📦 AUDIT VULNÉRABILITÉS CSRD</button>
+  </div>
+
+  <!-- Contrôles Onglet 4 : Executive Mobility -->
+  <div id="ctrl-mobility" class="tab-controls">
+    <input type="text" id="mobilityCompanyA" class="input-box" style="width: 150px;" placeholder="Entreprise A" value="Airbus">
+    <input type="text" id="mobilityCompanyB" class="input-box" style="width: 150px;" placeholder="Entreprise B (M&A)" value="Safran">
+    <input type="text" id="mobilityCoords" class="input-box" style="width: 160px;" placeholder="Aéroport/Zone" value="48.7262, 2.3652">
+    <button class="btn-action" onclick="execMobility()">✈️ DÉTECTER LES SIGNAUX M&A</button>
+    <button class="btn-export" onclick="exportReport('Mobilité_Exécutive')">🛰️ RADAR DE COPRÉSENCE</button>
+  </div>
+
+  <!-- Contrôles Onglet 5 : Forensic Studio -->
+  <div id="ctrl-forensic" class="tab-controls">
+    <input type="text" id="forensicCoords" class="input-box" style="width: 150px;" placeholder="Lieu allégué" value="48.8584, 2.2945">
+    <input type="datetime-local" id="forensicDate" class="input-box" value="2023-07-14T12:00">
+    <input type="number" id="forensicHpx" class="input-box" style="width: 80px;" placeholder="H (px)" value="180">
+    <input type="number" id="forensicLpx" class="input-box" style="width: 80px;" placeholder="L (px)" value="104">
+    <button class="btn-action" onclick="execForensic()">🔍 CERTIFIER LA SINCÉRITÉ</button>
+    <button class="btn-export" onclick="exportReport('Attestation_Forensic_Sincérité')">📜 ATTESTATION MÉDICO-LÉGALE</button>
+  </div>
+
+  <!-- Contrôles Onglet 6 : SIGINT & Alertes Globales -->
+  <div id="ctrl-sigint-global" class="tab-controls">
+    <input type="text" id="sigintCoords" class="input-box" style="width: 180px;" placeholder="GPS cible" value="48.8566, 2.3522">
+    <button class="btn-action" onclick="execSigintGlobal()">📡 SCANNER L'ARSENAL PHYSIQUE & SIGINT</button>
+    <button class="btn-export" onclick="exportReport('Audit_SIGINT_Global')">📑 RAPPORT DE MENACES HYBRIDES</button>
+  </div>
+
+
+  <div class="main-workspace">
+    <div id="map"></div>
+    <div class="intel-sidebar" id="sidebarContent">
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([48.8566, 2.3522], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; CartoDB & OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    let markersLayer = L.layerGroup().addTo(map);
+    let currentTab = 'nexus';
+
+    function changeTacticalShader(mode) {
+      const mapEl = document.getElementById('map');
+      mapEl.classList.remove('shader-flir', 'shader-nvg', 'shader-crt');
+      if (mode === 'flir') mapEl.classList.add('shader-flir');
+      else if (mode === 'nvg') mapEl.classList.add('shader-nvg');
+      else if (mode === 'crt') mapEl.classList.add('shader-crt');
+    }
+
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-controls').forEach(el => el.classList.remove('active'));
+
+      const tabs = {
+        'nexus': { idx: 0, tag: 'GLOBAL NEXUS', ctrl: 'ctrl-nexus', exec: execNexus },
+        'site-audit': { idx: 1, tag: 'TACTICAL SITE AUDIT', ctrl: 'ctrl-site-audit', exec: execSiteAudit },
+        'arena': { idx: 2, tag: 'COMPETITIVE ARENA', ctrl: 'ctrl-arena', exec: execArena },
+        'supply': { idx: 3, tag: 'SUPPLY & FLOW TRACKER', ctrl: 'ctrl-supply', exec: execSupplyFlow },
+        'mobility': { idx: 4, tag: 'EXECUTIVE MOBILITY', ctrl: 'ctrl-mobility', exec: execMobility },
+        'forensic': { idx: 5, tag: 'FORENSIC STUDIO', ctrl: 'ctrl-forensic', exec: execForensic },
+        'sigint-global': { idx: 6, tag: 'SIGINT & ALERTES', ctrl: 'ctrl-sigint-global', exec: execSigintGlobal }
+      };
+
+
+      const cfg = tabs[tabId];
+      document.querySelectorAll('.nav-tab')[cfg.idx].classList.add('active');
+      document.getElementById(cfg.ctrl).classList.add('active');
+      document.getElementById('activeModuleTag').innerText = cfg.tag;
+
+      cfg.exec();
+    }
+
+    function exportReport(title) {
+      window.print();
+    }
+
+    async function execNexus() {
+      markersLayer.clearLayers();
+      const company = document.getElementById('nexusCompany').value.trim() || 'Zara';
+      let [lat, lon] = document.getElementById('nexusCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 48.8566; lon = 2.3522; }
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Fusion géospatiale 360° en cours...</div></div>';
+
+      try {
+        const compResp = await fetch(`/api/v1/search_company?q=${encodeURIComponent(company)}`);
+        const compData = await compResp.json();
+        if (compData.headquarter && compData.headquarter.lat) {
+          lat = compData.headquarter.lat;
+          lon = compData.headquarter.lon;
+          document.getElementById('nexusCoords').value = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        }
+
+        const reportResp = await fetch(`/api/v1/report?lat=${lat}&lon=${lon}&company=${encodeURIComponent(company)}`);
+        const reportData = (await reportResp.json()).result;
+
+        const bounds = [[lat, lon]];
+        L.circleMarker([lat, lon], { radius: 10, fillColor: '#38bdf8', color: '#fff', weight: 2, fillOpacity: 0.9 })
+          .addTo(markersLayer).bindPopup(`<b>🎯 ${company}</b><br>Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`);
+
+        (compData.sites || []).forEach(s => {
+          if (s.lat && s.lon) {
+            L.circleMarker([s.lat, s.lon], { radius: 6, fillColor: '#10b981', color: '#fff', weight: 1, fillOpacity: 0.85 })
+              .addTo(markersLayer).bindPopup(`<b>🏢 ${s.nom || s.label}</b><br>${s.adresse || ''}`);
+            bounds.push([s.lat, s.lon]);
+          }
+        });
+
+        (reportData.live_flights || []).forEach(fl => {
+          if (fl.lat && fl.lon) {
+            L.circleMarker([fl.lat, fl.lon], { radius: 5, fillColor: '#f59e0b', color: '#fff', weight: 1, fillOpacity: 0.85 })
+              .addTo(markersLayer).bindPopup(`<b>✈️ VOL: ${fl.callsign || fl.icao24}</b>`);
+          }
+        });
+
+        map.fitBounds(bounds, { padding: [30, 30] });
+
+        const cad = reportData.cadastre_parcel || {};
+        const risk = reportData.risk_exposure || {};
+        const sc = reportData.supply_chain || {};
+        const ar = reportData.competitive_geography || {};
+
+        sidebar.innerHTML = `
+          <div class="panel-card">
+            <div class="panel-header"><span>🏛️ CADASTRE PARCELLAIRE</span><span class="tag tag-green">WAYPOINT</span></div>
+            <div class="metric-row"><span class="metric-label">Parcelle ID:</span><span class="metric-value">${cad.parcel_id || 'N/A'}</span></div>
+            <div class="metric-row"><span class="metric-label">Superficie:</span><span class="metric-value">${cad.surface_m2 ? cad.surface_m2.toLocaleString() + ' m²' : 'N/A'}</span></div>
+            <div class="metric-row"><span class="metric-label">Commune:</span><span class="metric-value">${cad.commune_nom || 'N/A'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>⚠️ EXPOSITION AUX RISQUES</span><span class="tag tag-blue">ORBIT</span></div>
+            <div class="metric-row"><span class="metric-label">Niveau:</span><span class="metric-value">${risk.level || 'Modéré'}</span></div>
+            <div class="metric-row"><span class="metric-label">Arrêtés CatNat:</span><span class="metric-value">${risk.catnat_count || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">SEVESO:</span><span class="metric-value" style="color:${risk.seveso ? 'var(--accent-red)' : 'var(--accent-emerald)'}">${risk.seveso ? '🚨 OUI' : 'NON'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>🐪 SUPPLY CHAIN AMONT</span><span class="tag tag-green">SILKROAD</span></div>
+            <div class="metric-row"><span class="metric-label">Filière:</span><span class="metric-value">${sc.sector || 'Général'}</span></div>
+            <div class="metric-row"><span class="metric-label">Fournisseurs Tier-1:</span><span class="metric-value">${sc.suppliers_count || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Résilience:</span><span class="metric-value">${sc.resilience_score || 70}/100</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>⚔️ ARÈNE CONCURRENTIELLE</span><span class="tag tag-blue">ARENA</span></div>
+            <div class="metric-row"><span class="metric-label">Concurrents Proches:</span><span class="metric-value">${ar.competitors_count || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Densité:</span><span class="metric-value">${ar.density_level || 'Moyenne'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>✈️ ESPACE AÉRIEN LIVE</span><span class="tag tag-amber">AQUILA</span></div>
+            <div class="metric-row"><span class="metric-label">Vols Détectés:</span><span class="metric-value">${(reportData.live_flights || []).length}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>🌌 MÉTÉO SPATIALE & GNSS</span><span class="tag tag-blue">NOAA SWPC</span></div>
+            <div class="metric-row"><span class="metric-label">Indice Kp Mondial:</span><span class="metric-value" style="color:var(--accent-amber);">${reportData.space_weather?.kp_index || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Niveau d'Alerte:</span><span class="metric-value">${reportData.space_weather?.storm_level || 'G0_QUIET'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    async function execSiteAudit() {
+      markersLayer.clearLayers();
+      let [lat, lon] = document.getElementById('siteAuditCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 48.8566; lon = 2.3522; }
+      const d1 = document.getElementById('siteAuditDateStart').value;
+      const d2 = document.getElementById('siteAuditDateEnd').value;
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Audit de conformité d\'actif en cours...</div></div>';
+
+      try {
+        const resp = await fetch(`/api/v1/modules/site-audit?lat=${lat}&lon=${lon}&date_start=${d1}&date_end=${d2}`);
+        const data = (await resp.json()).result;
+
+        L.circleMarker([lat, lon], { radius: 12, fillColor: '#10b981', color: '#fff', weight: 2, fillOpacity: 0.95 })
+          .addTo(markersLayer).bindPopup(`<b>ACTIF AUDITÉ</b><br>Score Conformité: ${data.asset_compliance_score}/100`);
+
+        L.circle([lat, lon], { radius: 1000, color: '#38bdf8', weight: 1, fillOpacity: 0.05 }).addTo(markersLayer);
+
+        (data.vital_networks?.elements || []).forEach(el => {
+          if (el.lat && el.lon) {
+            L.circleMarker([el.lat, el.lon], { radius: 5, fillColor: '#f59e0b', color: '#fff', weight: 1, fillOpacity: 0.85 })
+              .addTo(markersLayer).bindPopup(`<b>${el.type?.toUpperCase()}</b><br>${el.name || 'Infrastructure Vitale'}`);
+          }
+        });
+
+        map.setView([lat, lon], 14);
+
+        const cad = data.cadastre || {};
+        const env = data.environmental_exposure || {};
+        const net = data.vital_networks || {};
+        const sat = data.satellite_mutations || {};
+
+        sidebar.innerHTML = `
+          <div class="panel-card" style="border-color:var(--accent-emerald);">
+            <div class="panel-header"><span>VALORISATION CONFORMITÉ D'ACTIF</span><span class="tag tag-green">SCORE</span></div>
+            <div style="font-size:1.8rem; font-weight:700; color:var(--accent-emerald); text-align:center; padding:6px 0;">${data.asset_compliance_score} / 100</div>
+            <div class="metric-label" style="text-align:center; font-size:0.75rem;">Index certifié comités & assurances</div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>🏛️ FONCIER & CADASTRE</span><span class="tag tag-green">WAYPOINT</span></div>
+            <div class="metric-row"><span class="metric-label">Parcelle ID:</span><span class="metric-value">${cad.parcel_id || 'N/A'}</span></div>
+            <div class="metric-row"><span class="metric-label">Superficie Légale:</span><span class="metric-value">${cad.surface_m2 ? cad.surface_m2.toLocaleString() + ' m²' : 'N/A'}</span></div>
+            <div class="metric-row"><span class="metric-label">Commune:</span><span class="metric-value">${cad.commune_nom || 'N/A'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>⚡ RÉSEAUX VITAUX (1.5km)</span><span class="tag tag-blue">BEDROCK</span></div>
+            <div class="metric-row"><span class="metric-label">Infrastructures:</span><span class="metric-value">${net.total_infrastructure_elements || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Haute Tension:</span><span class="metric-value">${net.has_high_voltage ? '✅ OUI' : 'NON'}</span></div>
+            <div class="metric-row"><span class="metric-label">Voie Ferrée:</span><span class="metric-value">${net.has_railway ? '✅ OUI' : 'NON'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>⚠️ RISQUES NATURELS & SEVESO</span><span class="tag tag-amber">ORBIT</span></div>
+            <div class="metric-row"><span class="metric-label">Arrêtés CatNat:</span><span class="metric-value">${env.catnat_count || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Installations ICPE:</span><span class="metric-value">${env.icpe_count || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Statut SEVESO:</span><span class="metric-value" style="color:${env.seveso_present ? 'var(--accent-red)' : 'var(--accent-emerald)'}">${env.seveso_present ? '🚨 SEVESO' : 'SÉCURISÉ'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>🛰️ MUTATION DU BÂTI</span><span class="tag tag-blue">DELTA</span></div>
+            <div class="metric-row"><span class="metric-label">Changement Détecté:</span><span class="metric-value">${sat.detected ? 'OUI' : 'NON'}</span></div>
+            <div class="metric-row"><span class="metric-label">Surface Modifiée:</span><span class="metric-value">${sat.area_changed_m2 ? sat.area_changed_m2.toLocaleString() + ' m²' : '0 m²'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>⚡ TÉLÉMÉTRIE SISMIQUE (24H)</span><span class="tag tag-amber">USGS LIVE</span></div>
+            <div class="metric-row"><span class="metric-label">Séismes détectés (300km):</span><span class="metric-value">${data.live_seismic_telemetry?.events_detected_24h || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Alerte Structurelle:</span><span class="metric-value" style="color:${data.live_seismic_telemetry?.critical_alert ? 'var(--accent-red)' : 'var(--accent-emerald)'}; font-weight:700;">${data.live_seismic_telemetry?.critical_alert ? '🚨 RISQUE' : 'NOMINALE'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>🔥 ANOMALIES THERMIQUES & TORCHES</span><span class="tag tag-red" style="color:var(--accent-red); border-color:var(--accent-red); background:rgba(239,68,68,0.15);">NASA VIIRS</span></div>
+            <div class="metric-row"><span class="metric-label">Foyers Détectés (50km):</span><span class="metric-value">${data.thermal_flaring_intel?.active_anomalies_detected || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Torchage Gazier Détecté:</span><span class="metric-value" style="color:${data.thermal_flaring_intel?.industrial_flaring_detected ? 'var(--accent-red)' : 'var(--accent-emerald)'}; font-weight:700;">${data.thermal_flaring_intel?.industrial_flaring_detected ? '🚨 TORCHAGE DÉTECTÉ' : 'AUCUN'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    async function execArena() {
+      markersLayer.clearLayers();
+      const comp = document.getElementById('arenaCompany').value.trim() || 'Zara';
+      let [lat, lon] = document.getElementById('arenaCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 48.8566; lon = 2.3522; }
+      const rad = document.getElementById('arenaRadius').value;
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Calcul de la densité concurrentielle...</div></div>';
+
+      try {
+        const resp = await fetch(`/api/v1/modules/competitive-arena?company=${encodeURIComponent(comp)}&lat=${lat}&lon=${lon}&radius_km=${rad}`);
+        const data = (await resp.json()).result;
+
+        L.circle([lat, lon], { radius: rad * 1000, color: '#a855f7', weight: 2, fillOpacity: 0.08 }).addTo(markersLayer);
+        L.circleMarker([lat, lon], { radius: 10, fillColor: '#38bdf8', color: '#fff', weight: 2, fillOpacity: 0.9 })
+          .addTo(markersLayer).bindPopup(`<b>Établissement Cible: ${comp}</b>`);
+
+        const bounds = [[lat, lon]];
+        (data.competitors || []).forEach(c => {
+          if (c.lat && c.lon) {
+            L.circleMarker([c.lat, c.lon], { radius: 6, fillColor: '#ef4444', color: '#fff', weight: 1, fillOpacity: 0.85 })
+              .addTo(markersLayer).bindPopup(`<b>⚔️ ${c.nom || c.nom_complet}</b><br>Dist: ${c.distance_m ? (c.distance_m/1000).toFixed(2) + ' km' : 'N/A'}`);
+            bounds.push([c.lat, c.lon]);
+          }
+        });
+
+        map.fitBounds(bounds, { padding: [30, 30] });
+
+        sidebar.innerHTML = `
+          <div class="panel-card">
+            <div class="panel-header"><span>RAPPORT DE FORCE SPATIAL</span><span class="tag tag-blue">ARENA</span></div>
+            <div class="metric-row"><span class="metric-label">Entreprise Analysée:</span><span class="metric-value">${data.target_company}</span></div>
+            <div class="metric-row"><span class="metric-label">Rayon d'Étude:</span><span class="metric-value">${rad} km</span></div>
+            <div class="metric-row"><span class="metric-label">Concurrents Directs:</span><span class="metric-value" style="color:var(--accent-red); font-size:1.1rem;">${data.competitors_count}</span></div>
+            <div class="metric-row"><span class="metric-label">Densité Sectorielle:</span><span class="metric-value">${data.density_level}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>CONCURRENT LE PLUS PROCHE</span><span class="tag tag-green">PROXIMITÉ</span></div>
+            <div class="metric-row"><span class="metric-label">Nom:</span><span class="metric-value">${data.nearest_competitor?.nom || data.nearest_competitor?.nom_complet || 'Aucun'}</span></div>
+            <div class="metric-row"><span class="metric-label">Distance:</span><span class="metric-value">${data.nearest_competitor?.distance_m ? (data.nearest_competitor.distance_m/1000).toFixed(2) + ' km' : 'N/A'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    async function execSupplyFlow() {
+      markersLayer.clearLayers();
+      const comp = document.getElementById('supplyCompany').value.trim() || 'Zara';
+      let [lat, lon] = document.getElementById('supplyTerminalCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 49.49; lon = 0.10; }
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Interrogation AIS & supply chain...</div></div>';
+
+      try {
+        const resp = await fetch(`/api/v1/modules/supply-flow-tracker?company=${encodeURIComponent(comp)}&lat=${lat}&lon=${lon}`);
+        const data = (await resp.json()).result;
+
+        const bounds = [[lat, lon]];
+        L.circleMarker([lat, lon], { radius: 10, fillColor: '#0284c7', color: '#fff', weight: 2, fillOpacity: 0.9 })
+          .addTo(markersLayer).bindPopup(`<b>TERMINAL PORTUAIRE</b>`);
+
+        (data.supply_chain?.hubs || []).forEach(h => {
+          if (h.lat && h.lon) {
+            L.circleMarker([h.lat, h.lon], { radius: 8, fillColor: '#10b981', color: '#fff', weight: 1, fillOpacity: 0.9 })
+              .addTo(markersLayer).bindPopup(`<b>⚓ HUB: ${h.label}</b><br>Rôle: ${h.role || 'Logistique'}`);
+            bounds.push([h.lat, h.lon]);
+          }
+        });
+
+        (data.maritime_traffic?.vessels || []).forEach(v => {
+          if (v.latitude && v.longitude) {
+            L.circleMarker([v.latitude, v.longitude], { radius: 6, fillColor: '#f59e0b', color: '#fff', weight: 1, fillOpacity: 0.85 })
+              .addTo(markersLayer).bindPopup(`<b>🚢 NAVIRE: ${v.name || v.mmsi}</b><br>Type: ${v.category || 'Cargo'}<br>Vitesse: ${v.speed_knots || 0} kts`);
+            bounds.push([v.latitude, v.longitude]);
+          }
+        });
+
+        map.fitBounds(bounds, { padding: [30, 30] });
+
+        const sc = data.supply_chain || {};
+        const mt = data.maritime_traffic || {};
+        const ac = data.air_cargo_traffic || {};
+
+        sidebar.innerHTML = `
+          <div class="panel-card">
+            <div class="panel-header"><span>SURVEILLANCE SUPPLY CHAIN</span><span class="tag tag-green">SILKROAD</span></div>
+            <div class="metric-row"><span class="metric-label">Filière Amont:</span><span class="metric-value">${sc.sector}</span></div>
+            <div class="metric-row"><span class="metric-label">Fournisseurs Tier-1:</span><span class="metric-value">${sc.suppliers_count}</span></div>
+            <div class="metric-row"><span class="metric-label">Hubs Stratégiques:</span><span class="metric-value">${sc.hubs_count}</span></div>
+            <div class="metric-row"><span class="metric-label">Résilience:</span><span class="metric-value">${sc.resilience_score}/100</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>APPROCHES MARITIMES (AIS)</span><span class="tag tag-blue">NEREID</span></div>
+            <div class="metric-row"><span class="metric-label">Navires Détectés:</span><span class="metric-value">${mt.total_vessels_detected}</span></div>
+            <div class="metric-row"><span class="metric-label">Cargos & Pétroliers:</span><span class="metric-value" style="color:var(--accent-amber);">${mt.cargo_tankers_count}</span></div>
+            <div class="metric-row"><span class="metric-label">Navires Suspects (Dark):</span><span class="metric-value" style="color:${mt.dark_vessels_detected > 0 ? 'var(--accent-red)' : 'var(--accent-emerald)'}; font-weight:700;">${mt.dark_vessels_detected || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Transferts STS:</span><span class="metric-value">${mt.sts_rendezvous_count || 0}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>FRET AÉRIEN & BROUILLAGE GNSS</span><span class="tag tag-amber">AQUILA</span></div>
+            <div class="metric-row"><span class="metric-label">Vols Observés:</span><span class="metric-value">${ac.total_flights_detected}</span></div>
+            <div class="metric-row"><span class="metric-label">Statut GPS Régional:</span><span class="metric-value" style="color:${ac.gnss_jamming_status?.includes('ACTIVE') ? 'var(--accent-red)' : 'var(--accent-emerald)'}; font-weight:700;">${ac.gnss_jamming_status || 'NOMINAL'}</span></div>
+            <div class="metric-row"><span class="metric-label">Avions Dégradés:</span><span class="metric-value">${ac.gnss_anomalies_count || 0}</span></div>
+          </div>
+        `;
+
+      } catch (e) {
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    async function execMobility() {
+      markersLayer.clearLayers();
+      const compA = document.getElementById('mobilityCompanyA').value.trim() || 'Airbus';
+      const compB = document.getElementById('mobilityCompanyB').value.trim() || 'Safran';
+      let [lat, lon] = document.getElementById('mobilityCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 48.7262; lon = 2.3652; }
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Recherche de coprésence et veille VIP...</div></div>';
+
+      try {
+        const resp = await fetch(`/api/v1/modules/executive-mobility?company_a=${encodeURIComponent(compA)}&company_b=${encodeURIComponent(compB)}&lat=${lat}&lon=${lon}`);
+        const data = (await resp.json()).result;
+
+        const bounds = [[lat, lon]];
+        (data.nearby_airfields || []).forEach(af => {
+          if (af.lat && af.lon) {
+            L.circleMarker([af.lat, af.lon], { radius: 8, fillColor: '#38bdf8', color: '#fff', weight: 1, fillOpacity: 0.9 })
+              .addTo(markersLayer).bindPopup(`<b>🛫 INFRASTRUCTURE VIP: ${af.name || 'Aérodrome'}</b>`);
+            bounds.push([af.lat, af.lon]);
+          }
+        });
+
+        (data.airspace_monitoring?.flights || []).forEach(fl => {
+          if (fl.lat && fl.lon) {
+            L.circleMarker([fl.lat, fl.lon], { radius: 6, fillColor: '#f59e0b', color: '#fff', weight: 1, fillOpacity: 0.85 })
+              .addTo(markersLayer).bindPopup(`<b>✈️ JET / VOL: ${fl.callsign || fl.icao24}</b>`);
+            bounds.push([fl.lat, fl.lon]);
+          }
+        });
+
+        map.fitBounds(bounds, { padding: [30, 30] });
+
+        sidebar.innerHTML = `
+          <div class="panel-card">
+            <div class="panel-header"><span>SURVEILLANCE STRATÉGIQUE M&A</span><span class="tag tag-amber">AQUILA + ODYSSEY</span></div>
+            <div class="metric-row"><span class="metric-label">Groupe A:</span><span class="metric-value">${compA}</span></div>
+            <div class="metric-row"><span class="metric-label">Groupe B:</span><span class="metric-value">${compB}</span></div>
+            <div class="metric-row"><span class="metric-label">Alerte Coprésence:</span><span class="metric-value" style="color:var(--accent-emerald);">VEILLE ACTIVE</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>ESPACE AÉRIEN D'AFFAIRES</span><span class="tag tag-blue">ADS-B</span></div>
+            <div class="metric-row"><span class="metric-label">Vols Observés:</span><span class="metric-value">${data.airspace_monitoring?.active_flights_count || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Tarmacs / Héliports:</span><span class="metric-value">${(data.nearby_airfields || []).length}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    async function execForensic() {
+      markersLayer.clearLayers();
+      let [lat, lon] = document.getElementById('forensicCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 48.8584; lon = 2.2945; }
+      const dt = document.getElementById('forensicDate').value;
+      const h = document.getElementById('forensicHpx').value;
+      const l = document.getElementById('forensicLpx').value;
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Calculs éphémérides solaires NOAA & anti-spoofing...</div></div>';
+
+      try {
+        const resp = await fetch(`/api/v1/modules/forensic-studio?lat=${lat}&lon=${lon}&date_capture=${encodeURIComponent(dt)}&object_height_px=${h}&shadow_length_px=${l}`);
+        const data = (await resp.json()).result;
+
+        L.circleMarker([lat, lon], { radius: 10, fillColor: '#a855f7', color: '#fff', weight: 2, fillOpacity: 0.9 })
+          .addTo(markersLayer).bindPopup(`<b>INVESTIGATION FORENSIC</b>`);
+
+        map.setView([lat, lon], 15);
+
+        const sol = data.solar_forensics || {};
+        const cad = data.cadastral_ground_truth || {};
+        const cert = data.certificate_of_sincerity || {};
+
+        sidebar.innerHTML = `
+          <div class="panel-card" style="border-color:var(--accent-purple);">
+            <div class="panel-header"><span>CERTIFICAT DE SINCÉRITÉ PHYSIQUE</span><span class="tag tag-green">NOAA</span></div>
+            <div style="font-size:1.1rem; font-weight:700; color:var(--accent-emerald); text-align:center; padding:6px 0;">${cert.verdict}</div>
+            <div class="metric-label" style="text-align:center; font-size:0.75rem;">Inversion trigonométrique & anti-spoofing</div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>ÉPHÉMÉRIDES SOLAIRES RÉELLES</span><span class="tag tag-amber">NORTHSTAR</span></div>
+            <div class="metric-row"><span class="metric-label">Élévation Solaire:</span><span class="metric-value">${sol.sun_elevation_deg ? sol.sun_elevation_deg + '°' : 'N/A'}</span></div>
+            <div class="metric-row"><span class="metric-label">Azimut Solaire:</span><span class="metric-value">${sol.sun_azimuth_deg ? sol.sun_azimuth_deg + '°' : 'N/A'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>VÉRITÉ TERRAIN PARCELLAIRE</span><span class="tag tag-green">WAYPOINT</span></div>
+            <div class="metric-row"><span class="metric-label">Parcelle ID:</span><span class="metric-value">${cad.parcel_id || 'Zone publique'}</span></div>
+            <div class="metric-row"><span class="metric-label">Surface:</span><span class="metric-value">${cad.surface_m2 ? cad.surface_m2 + ' m²' : 'N/A'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    async function execSigintGlobal() {
+      markersLayer.clearLayers();
+      let [lat, lon] = document.getElementById('sigintCoords').value.split(',').map(s => parseFloat(s.trim()));
+      if (isNaN(lat) || isNaN(lon)) { lat = 48.8566; lon = 2.3522; }
+
+      const sidebar = document.getElementById('sidebarContent');
+      sidebar.innerHTML = '<div class="panel-card"><div class="metric-label">Scan mondial de l\'arsenal OSINT/SIGINT...</div></div>';
+
+      try {
+        const [rSdr, rSw, rSeismic, rThermal, rJam] = await Promise.all([
+          fetch(`http://localhost:8006/api/v1/sdr?lat=${lat}&lon=${lon}&max_results=5`).then(r => r.json()).catch(() => null),
+          fetch(`http://localhost:8002/api/v1/space-weather`).then(r => r.json()).catch(() => null),
+          fetch(`http://localhost:8002/api/v1/seismic?lat=${lat}&lon=${lon}&radius_km=500`).then(r => r.json()).catch(() => null),
+          fetch(`http://localhost:8004/api/v1/thermal?lat=${lat}&lon=${lon}&radius_km=100`).then(r => r.json()).catch(() => null),
+          fetch(`http://localhost:8003/api/v1/gnss-jamming?lat=${lat}&lon=${lon}&radius_nm=250`).then(r => r.json()).catch(() => null)
+        ]);
+
+        const sdrData = rSdr?.result || {};
+        const swData = rSw?.result || {};
+        const seismicData = rSeismic?.result || {};
+        const thermalData = rThermal?.result || {};
+        const jamData = rJam?.result || {};
+
+        L.circleMarker([lat, lon], { radius: 12, fillColor: '#06b6d4', color: '#fff', weight: 2, fillOpacity: 0.95 })
+          .addTo(markersLayer).bindPopup(`<b>🎯 POINT DE RENSEIGNEMENT GLOBAL</b><br>${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+
+        (sdrData.receivers || []).forEach(sdr => {
+          if (sdr.latitude && sdr.longitude) {
+            L.circleMarker([sdr.latitude, sdr.longitude], { radius: 8, fillColor: '#3b82f6', color: '#fff', weight: 1, fillOpacity: 0.9 })
+              .addTo(markersLayer).bindPopup(`<b>📻 STATION SDR: ${sdr.name}</b><br>Dist: ${sdr.distance_km} km<br>Bande: ${sdr.coverage}<br><a href="${sdr.url}" target="_blank" style="color:#38bdf8;">Écouter le flux direct</a>`);
+          }
+        });
+
+        map.setView([lat, lon], 6);
+
+        sidebar.innerHTML = `
+          <div class="panel-card" style="border-color:var(--accent-cyan);">
+            <div class="panel-header"><span>RADIOFRÉQUENCE SIGINT (SDR)</span><span class="tag tag-blue">BEDROCK</span></div>
+            <div class="metric-row"><span class="metric-label">Capteurs Actifs:</span><span class="metric-value">${(sdrData.receivers || []).length}</span></div>
+            <div class="metric-row"><span class="metric-label">Plus Proche:</span><span class="metric-value" style="font-size:0.75rem;">${sdrData.receivers?.[0]?.name || 'N/A'}</span></div>
+            <div class="metric-row"><span class="metric-label">Distance:</span><span class="metric-value">${sdrData.receivers?.[0]?.distance_km || 0} km</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>MÉTÉO SPATIALE & ORAGES GNSS</span><span class="tag tag-amber">NOAA SWPC</span></div>
+            <div class="metric-row"><span class="metric-label">Indice Kp:</span><span class="metric-value" style="font-size:1.1rem; color:var(--accent-amber);">${swData.kp_index || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Niveau d'Alerte:</span><span class="metric-value">${swData.storm_level || 'G0_QUIET'}</span></div>
+            <div class="metric-row"><span class="metric-label">Impact GNSS:</span><span class="metric-value">${swData.gnss_impact_status || 'NOMINAL'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>GUERRE ÉLECTRONIQUE (GPS JAMMING)</span><span class="tag tag-red" style="color:var(--accent-red); border-color:var(--accent-red);">AQUILA</span></div>
+            <div class="metric-row"><span class="metric-label">Statut Espace Aérien:</span><span class="metric-value" style="color:${jamData.regional_status?.includes('ACTIVE') ? 'var(--accent-red)' : 'var(--accent-emerald)'}; font-weight:700;">${jamData.regional_status || 'NOMINAL'}</span></div>
+            <div class="metric-row"><span class="metric-label">Avions Dégradés:</span><span class="metric-value">${jamData.anomalous_aircraft_count || 0}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>SISMICITÉ MONDIALE (24H)</span><span class="tag tag-green">USGS</span></div>
+            <div class="metric-row"><span class="metric-label">Événements (500km):</span><span class="metric-value">${seismicData.total_events_detected || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Alerte Structurelle:</span><span class="metric-value">${seismicData.critical_alert ? '🚨 RISQUE' : 'NOMINALE'}</span></div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-header"><span>ANOMALIES THERMIQUES (100km)</span><span class="tag tag-amber">NASA VIIRS</span></div>
+            <div class="metric-row"><span class="metric-label">Foyers Détectés:</span><span class="metric-value">${thermalData.total_anomalies_detected || 0}</span></div>
+            <div class="metric-row"><span class="metric-label">Torchage Industriel:</span><span class="metric-value">${thermalData.industrial_flaring_detected ? '🚨 OUI' : 'NON'}</span></div>
+          </div>
+        `;
+      } catch (e) {
+        sidebar.innerHTML = `<div class="panel-card"><div class="metric-label" style="color:var(--accent-red);">Erreur: ${e.message}</div></div>`;
+      }
+    }
+
+    function openManifest() {
+      document.getElementById('manifestModal').classList.add('active');
+    }
+
+    function closeManifest() {
+      document.getElementById('manifestModal').classList.remove('active');
+    }
+
+    window.onload = function() {
+      execNexus();
+    };
+  </script>
+
+  <!-- Modal Manifeste TERRA -->
+  <div id="manifestModal" class="manifest-modal" onclick="if(event.target === this) closeManifest()">
+    <div class="manifest-card">
+      <span class="manifest-close" onclick="closeManifest()">&times;</span>
+      <img src="/static/terra_prism_logo.png" alt="TERRA Cosmological Octahedron" style="width: 140px; margin-bottom: 12px; filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.8));">
+      <h2 style="margin: 0 0 8px 0; font-size: 1.3rem; color: var(--accent-cyan); letter-spacing: 0.8px;">TERRA — L'OCTAÈDRE COSMOLOGIQUE</h2>
+      <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 16px;">Manifeste d'Intelligence Géospatiale & Renseignement Physique 360°</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; font-size: 0.78rem;">
+        <div style="background: rgba(15, 23, 42, 0.7); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.2);">
+          <div style="color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">🔺 PYRAMIDE CÉLESTE (ORBITE & AIR)</div>
+          <div style="color: var(--text-muted); line-height: 1.4;">
+            • <b>Sommet Rayonnant :</b> Météo spatiale NOAA SWPC & constellations GNSS.<br>
+            • <b>Ondes & Trame :</b> Renseignement radioélectrique SIGINT (Bedrock).<br>
+            • <b>Oiseaux en Essaim :</b> Trafic aérien ADS-B & Guerre électronique (Aquila).
+          </div>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.7); padding: 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+          <div style="color: var(--accent-emerald); font-weight: 700; margin-bottom: 4px;">🔻 PYRAMIDE TERRESTRE (MER & MINÉRAL)</div>
+          <div style="color: var(--text-muted); line-height: 1.4;">
+            • <b>Flotte & Vagues :</b> Suivi maritime AIS & Dark Vessels (Nereid).<br>
+            • <b>Constellations Submergées :</b> Réseaux vitaux & câbles sous-marins.<br>
+            • <b>Socle Tectonique :</b> Cadastre parcellaire (Waypoint) & Sismicité (Orbit).
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; color: var(--accent-emerald); font-weight: 600;">
+        100% ZERO FAKE DATA • 100% CONFORME RGPD & AI ACT
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
+

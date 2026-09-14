@@ -1,0 +1,36 @@
+<!-- CARTE MOBILITÉ AÉRIENNE & M&A -->
+<div v-if="store.currentTab === 'mobility' && store.results.mobility">
+  <div class="spatial-card">
+    <div class="spatial-card-header">
+      <span class="card-title">Surveillance Stratégique M&A</span>
+      <span class="card-badge badge-amber">AQUILA + ODYSSEY</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Groupe A:</span>
+      <span class="data-row-value" v-text="store.inputs.mobility.companyA"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Groupe B:</span>
+      <span class="data-row-value" v-text="store.inputs.mobility.companyB"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Alerte Coprésence:</span>
+      <span class="data-row-value" style="color: var(--accent-emerald);">VEILLE ACTIVE</span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Espace Aérien d'Affaires</span>
+      <span class="card-badge badge-cyan">ADS-B</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Vols Observés:</span>
+      <span class="data-row-value" v-text="store.results.mobility.airspace_monitoring?.active_flights_count || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Tarmacs / Héliports:</span>
+      <span class="data-row-value" v-text="(store.results.mobility.nearby_airfields || []).length"></span>
+    </div>
+  </div>
+</div>

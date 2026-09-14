@@ -1,0 +1,85 @@
+<!-- CARTE SIGINT & ALERTES MONDIALES -->
+<div v-if="store.currentTab === 'sigint-global' && store.results.sigint">
+  <div class="spatial-card" style="border-color: var(--accent-cyan);">
+    <div class="spatial-card-header">
+      <span class="card-title">Radiofréquence SIGINT (SDR)</span>
+      <span class="card-badge badge-cyan">BEDROCK</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Capteurs Actifs:</span>
+      <span class="data-row-value" v-text="(store.results.sigint.sdr?.receivers || []).length"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Plus Proche:</span>
+      <span class="data-row-value" style="font-size: 0.75rem;" v-text="store.results.sigint.sdr?.receivers?.[0]?.name || 'N/A'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Distance:</span>
+      <span class="data-row-value" v-text="(store.results.sigint.sdr?.receivers?.[0]?.distance_km || 0) + ' km'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Météo Spatiale & Orages GNSS</span>
+      <span class="card-badge badge-amber">NOAA SWPC</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Indice Kp:</span>
+      <span class="data-row-value" style="font-size: 1.1rem; color: var(--accent-amber);" v-text="store.results.sigint.sw?.kp_index || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Niveau d'Alerte:</span>
+      <span class="data-row-value" v-text="store.results.sigint.sw?.storm_level || 'G0_QUIET'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Impact GNSS:</span>
+      <span class="data-row-value" v-text="store.results.sigint.sw?.gnss_impact_status || 'NOMINAL'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Guerre Électronique (GPS Jamming)</span>
+      <span class="card-badge badge-rose">AQUILA</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Statut Espace Aérien:</span>
+      <span class="data-row-value" :style="{ color: store.results.sigint.jam?.regional_status?.includes('ACTIVE') ? 'var(--accent-rose)' : 'var(--accent-emerald)', fontWeight: '700' }" v-text="store.results.sigint.jam?.regional_status || 'NOMINAL'"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Avions Dégradés:</span>
+      <span class="data-row-value" v-text="store.results.sigint.jam?.anomalous_aircraft_count || 0"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Sismicité Mondiale (24H)</span>
+      <span class="card-badge badge-emerald">USGS</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Événements (500km):</span>
+      <span class="data-row-value" v-text="store.results.sigint.seismic?.total_events_detected || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Alerte Structurelle:</span>
+      <span class="data-row-value" v-text="store.results.sigint.seismic?.critical_alert ? '🚨 RISQUE' : 'NOMINALE'"></span>
+    </div>
+  </div>
+
+  <div class="spatial-card" style="margin-top: 10px;">
+    <div class="spatial-card-header">
+      <span class="card-title">Anomalies Thermiques (100km)</span>
+      <span class="card-badge badge-amber">NASA VIIRS</span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Foyers Détectés:</span>
+      <span class="data-row-value" v-text="store.results.sigint.thermal?.total_anomalies_detected || 0"></span>
+    </div>
+    <div class="data-row">
+      <span class="data-row-label">Torchage Industriel:</span>
+      <span class="data-row-value" v-text="store.results.sigint.thermal?.industrial_flaring_detected ? '🚨 OUI' : 'NON'"></span>
+    </div>
+  </div>
+</div>
