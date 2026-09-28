@@ -11,20 +11,20 @@ requires-python = ">=3.10"
 authors = [{ name = "Genesis OSINT Team" }]
 dependencies = [
     "pydantic>=2.0.0",
-    "genesis-core>=1.0.0",
+    "genesis-core>=0.0.6",
     "fastapi>=0.100.0",
     "uvicorn>=0.22.0",
     "httpx>=0.24.0",
-    "waypoint-site-intelligence>=1.0.0",
-    "orbit-geospatial-exposure>=2.0.0",
-    "odyssey-corporate-world-map>=2.0.0",
-    "arena-competitive-geography>=2.0.0",
-    "delta-change-detection>=2.0.0",
-    "silkroad-supply-chain>=2.0.0",
-    "bedrock-infrastructure-intel>=2.0.0",
-    "aquila-aviation-intel>=2.0.0",
-    "nereid-maritime-intel>=2.0.0",
-    "northstar-image-geolocation>=2.0.0"
+    "waypoint-site-intelligence>=0.0.6",
+    "orbit-geospatial-exposure>=0.0.6",
+    "odyssey-corporate-world-map>=0.0.6",
+    "arena-competitive-geography>=0.0.6",
+    "delta-change-detection>=0.0.6",
+    "silkroad-supply-chain>=0.0.6",
+    "bedrock-infrastructure-intel>=0.0.6",
+    "aquila-aviation-intel>=0.0.6",
+    "nereid-maritime-intel>=0.0.6",
+    "northstar-image-geolocation>=0.0.6"
 ]
 
 [project.optional-dependencies]
