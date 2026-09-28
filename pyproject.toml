@@ -11,20 +11,23 @@ requires-python = ">=3.10"
 authors = [{ name = "Genesis OSINT Team" }]
 dependencies = [
     "pydantic>=2.0.0",
-    "genesis-core>=0.0.6",
     "fastapi>=0.100.0",
     "uvicorn>=0.22.0",
     "httpx>=0.24.0",
-    "waypoint-site-intelligence>=0.0.6",
-    "orbit-geospatial-exposure>=0.0.6",
-    "odyssey-corporate-world-map>=0.0.6",
-    "arena-competitive-geography>=0.0.6",
-    "delta-change-detection>=0.0.6",
-    "silkroad-supply-chain>=0.0.6",
-    "bedrock-infrastructure-intel>=0.0.6",
-    "aquila-aviation-intel>=0.0.6",
-    "nereid-maritime-intel>=0.0.6",
-    "northstar-image-geolocation>=0.0.6"
+    "jinja2>=3.1.0",
+    "python-multipart>=0.0.6",
+    "python-dotenv>=1.0.0",
+    "genesis-core @ git+https://github.com/YannCedL/genesis-core.git",
+    "waypoint-site-intelligence @ git+https://github.com/YannCedL/waypoint-site-intelligence.git",
+    "orbit-geospatial-exposure @ git+https://github.com/YannCedL/orbit-geospatial-exposure.git",
+    "odyssey-corporate-world-map @ git+https://github.com/YannCedL/odyssey-corporate-world-map.git",
+    "arena-competitive-geography @ git+https://github.com/YannCedL/arena-competitive-geography.git",
+    "delta-change-detection @ git+https://github.com/YannCedL/delta-change-detection.git",
+    "silkroad-supply-chain @ git+https://github.com/YannCedL/silkroad-supply-chain.git",
+    "bedrock-infrastructure-intel @ git+https://github.com/YannCedL/bedrock-infrastructure-intel.git",
+    "aquila-aviation-intel @ git+https://github.com/YannCedL/aquila-aviation-intel.git",
+    "nereid-maritime-intel @ git+https://github.com/YannCedL/nereid-maritime-intel.git",
+    "northstar-image-geolocation @ git+https://github.com/YannCedL/northstar-image-geolocation.git"
 ]
 
 [project.optional-dependencies]
