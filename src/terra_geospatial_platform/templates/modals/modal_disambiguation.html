@@ -1,0 +1,70 @@
+<!-- ===================================================================== -->
+<!-- MODALE DE DÉSAMBIGUÏSATION D'ENTREPRISE TACTIQUE (TERRA 360°)         -->
+<!-- Permet la sélection de l'entité juridique exacte et de son SIREN officiel -->
+<!-- ===================================================================== -->
+<div v-if="store.disambiguationOpen" class="disambiguation-overlay" @click.self="store.disambiguationOpen = false">
+  <div class="disambiguation-modal">
+    <!-- Header -->
+    <div class="disambiguation-header">
+      <div class="disambiguation-title-group">
+        <div class="disambiguation-badge">🎯 IDENTIFICATION SIREN CERTIFIÉE</div>
+        <h3 class="disambiguation-title">Sélectionnez l'entité légale à projeter</h3>
+        <p class="disambiguation-subtitle">
+          Plusieurs entités officielles correspondent à votre recherche : <span class="highlight-query" v-text="store.pendingQuery"></span>
+        </p>
+      </div>
+      <button class="disambiguation-close-btn" @click="store.disambiguationOpen = false" title="Fermer la modale">✕</button>
+    </div>
+
+    <!-- Candidate List -->
+    <div class="disambiguation-body">
+      <div
+        v-for="(cand, idx) in store.candidateList"
+        :key="cand.siren || idx"
+        @click="confirmDisambiguation(cand)"
+        class="candidate-card"
+      >
+        <div class="candidate-top-row">
+          <div class="candidate-identity">
+            <div class="candidate-name-row">
+              <span class="candidate-name" v-text="cand.name || cand.nom_complet || cand.nom_raison_sociale"></span>
+              <span v-if="cand.is_major_entity" class="badge-major">ENTITÉ MAJEURE</span>
+            </div>
+            <div class="candidate-ids">
+              <span>SIREN : <strong class="text-cyan font-mono" v-text="cand.siren"></strong></span>
+              <span v-if="cand.siret_siege" class="id-sep">•</span>
+              <span v-if="cand.siret_siege" class="text-muted">Siège : <span class="font-mono" v-text="cand.siret_siege"></span></span>
+            </div>
+          </div>
+          <span
+            class="status-pill"
+            :class="cand.etat_administratif === 'C' ? 'pill-closed' : 'pill-active'"
+            v-text="cand.etat_administratif === 'C' ? 'FERMÉ' : 'EN ACTIVITÉ'"
+          ></span>
+        </div>
+
+        <div class="candidate-meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">📍 Implantation :</span>
+            <span class="meta-value truncate" v-text="cand.commune ? (cand.commune + ' (' + (cand.code_postal || 'FR') + ')') : 'Siège en France'"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">🏢 Établissements :</span>
+            <span class="meta-value" v-text="(cand.total_etablissements || 1) + ' site(s) recensé(s)'"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">👥 Effectifs :</span>
+            <span class="meta-value truncate" v-text="cand.effectifs_label || 'Non renseigné'"></span>
+          </div>
+        </div>
+
+        <div class="candidate-action-row">
+          <span class="candidate-action-btn">
+            <span>Déployer la projection spatiale</span>
+            <span class="btn-arrow">→</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

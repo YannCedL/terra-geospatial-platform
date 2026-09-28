@@ -149,38 +149,99 @@ const app = createApp({
       'sigint-global':'SIGINT & Alertes'
     })[tabId] || tabId;
 
-    const launchQuickMission = () => {
-      const q = (store.launcherQuery || '').trim();
-      const label = q ? `"${q}"` : 'la cible';
-      store.showFeedback(`🚀 Déploiement Nexus 360° pour ${label}...`, 'info');
+    const confirmDisambiguation = (cand) => {
+      store.disambiguationOpen = false;
+      const tabId = store.disambiguationTargetTab || 'nexus';
+      const targetQuery = cand.siren || cand.name || store.pendingQuery;
+      
+      store.showFeedback(`🎯 Cible confirmée : ${cand.name || cand.nom_complet} (${cand.siren})`, 'info');
       store.homeScreenActive = false;
-      if (q) {
-        store.inputs.nexus.company = q;
-      }
-      Vue.nextTick(() => {
-        initEngines();
-        resizeEngines();
-        setTimeout(() => switchTab('nexus'), 150);
-      });
-    };
 
-    const launchSpecificMission = (tabId) => {
-      const q = (store.launcherQuery || '').trim();
-      const label = q ? `"${q}"` : 'la cible';
-      store.showFeedback(`🚀 Lancement ${_tabLabel(tabId)} pour ${label}...`, 'info');
-      store.homeScreenActive = false;
-      if (q) {
-        if (tabId === 'nexus') store.inputs.nexus.company = q;
-        else if (tabId === 'arena') store.inputs.arena.company = q;
-        else if (tabId === 'supply') store.inputs.supply.company = q;
-        else if (tabId === 'mobility') store.inputs.mobility.companyA = q;
-        else if (tabId === 'site-audit') store.inputs.siteAudit.coords = q;
-      }
+      if (tabId === 'nexus') store.inputs.nexus.company = targetQuery;
+      else if (tabId === 'arena') store.inputs.arena.company = targetQuery;
+      else if (tabId === 'supply') store.inputs.supply.company = targetQuery;
+      else if (tabId === 'mobility') store.inputs.mobility.companyA = targetQuery;
+
       Vue.nextTick(() => {
         initEngines();
         resizeEngines();
         setTimeout(() => switchTab(tabId), 150);
       });
+    };
+
+    const handleSearchWithDisambiguation = async (query, tabId) => {
+      const q = (query || '').trim();
+      if (!q) {
+        store.homeScreenActive = false;
+        Vue.nextTick(() => {
+          initEngines();
+          resizeEngines();
+          setTimeout(() => switchTab(tabId), 150);
+        });
+        return;
+      }
+
+      // Si c'est déjà un SIREN à 9 chiffres ou des coordonnées GPS (chiffres avec virgule), direct
+      const isSiren = /^\d{9}$/.test(q.replace(/\s+/g, ''));
+      const isCoords = /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(q);
+
+      if (isSiren || isCoords) {
+        store.showFeedback(`🚀 Déploiement ${_tabLabel(tabId)} pour "${q}"...`, 'info');
+        store.homeScreenActive = false;
+        if (tabId === 'nexus') store.inputs.nexus.company = q;
+        else if (tabId === 'arena') store.inputs.arena.company = q;
+        else if (tabId === 'supply') store.inputs.supply.company = q;
+        else if (tabId === 'mobility') store.inputs.mobility.companyA = q;
+        else if (tabId === 'site-audit') store.inputs.siteAudit.coords = q;
+
+        Vue.nextTick(() => {
+          initEngines();
+          resizeEngines();
+          setTimeout(() => switchTab(tabId), 150);
+        });
+        return;
+      }
+
+      // Recherche des candidats certifiés
+      try {
+        store.pendingQuery = q;
+        store.disambiguationTargetTab = tabId;
+        const candidates = await ApiService.searchCandidates(q);
+        if (candidates && candidates.length > 1) {
+          store.candidateList = candidates;
+          store.disambiguationOpen = true;
+          return;
+        } else if (candidates && candidates.length === 1) {
+          // Un seul candidat évident : confirmation automatique
+          confirmDisambiguation(candidates[0]);
+          return;
+        }
+      } catch (err) {
+        console.warn('Erreur recherche candidats, passage en direct:', err);
+      }
+
+      // Fallback direct si aucun candidat ou échec
+      store.showFeedback(`🚀 Déploiement ${_tabLabel(tabId)} pour "${q}"...`, 'info');
+      store.homeScreenActive = false;
+      if (tabId === 'nexus') store.inputs.nexus.company = q;
+      else if (tabId === 'arena') store.inputs.arena.company = q;
+      else if (tabId === 'supply') store.inputs.supply.company = q;
+      else if (tabId === 'mobility') store.inputs.mobility.companyA = q;
+      else if (tabId === 'site-audit') store.inputs.siteAudit.coords = q;
+
+      Vue.nextTick(() => {
+        initEngines();
+        resizeEngines();
+        setTimeout(() => switchTab(tabId), 150);
+      });
+    };
+
+    const launchQuickMission = () => {
+      handleSearchWithDisambiguation(store.launcherQuery, 'nexus');
+    };
+
+    const launchSpecificMission = (tabId) => {
+      handleSearchWithDisambiguation(store.launcherQuery, tabId);
     };
 
     const launchWarRoomMission = () => {
@@ -533,6 +594,7 @@ const app = createApp({
       toggleFullscreen,
       exportReport,
       setTarget,
+      confirmDisambiguation,
       launchQuickMission,
       launchSpecificMission,
       launchWarRoomMission

@@ -3,6 +3,13 @@
 // Appelle directement les microservices réels fédérés
 // ==========================================================================
 export class ApiService {
+  static async searchCandidates(query) {
+    const resp = await fetch(`/api/v1/search_candidates?q=${encodeURIComponent(query)}`);
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return data.candidates || [];
+  }
+
   static async searchCompany(company) {
     const resp = await fetch(`/api/v1/search_company?q=${encodeURIComponent(company)}`);
     if (!resp.ok) throw new Error(`Erreur recherche entreprise (${resp.status})`);

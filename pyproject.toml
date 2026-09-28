@@ -27,7 +27,8 @@ dependencies = [
     "bedrock-infrastructure-intel @ git+https://github.com/YannCedL/bedrock-infrastructure-intel.git",
     "aquila-aviation-intel @ git+https://github.com/YannCedL/aquila-aviation-intel.git",
     "nereid-maritime-intel @ git+https://github.com/YannCedL/nereid-maritime-intel.git",
-    "northstar-image-geolocation @ git+https://github.com/YannCedL/northstar-image-geolocation.git"
+    "northstar-image-geolocation @ git+https://github.com/YannCedL/northstar-image-geolocation.git",
+    "argus-company-research @ git+https://github.com/YannCedL/argus-company-research.git"
 ]
 
 [project.optional-dependencies]

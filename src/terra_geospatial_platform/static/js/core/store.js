@@ -33,6 +33,12 @@ export const store = reactive({
   homeScreenActive: true,
   launcherQuery: '',
   bgServicesReady: false,
+  
+  // Modale de Désambiguïsation d'Entreprise
+  disambiguationOpen: false,
+  candidateList: [],
+  pendingQuery: '',
+  disambiguationTargetTab: 'nexus',
   servicesHealth: {
     total: 14,
     online: 0,
