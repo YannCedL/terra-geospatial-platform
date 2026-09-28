@@ -34,13 +34,24 @@ BASE_DIR = os.path.dirname(__file__)
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
+# Fallback si exécuté depuis la racine du dépôt git
+if not os.path.exists(TEMPLATES_DIR):
+    alt_templates = os.path.join(os.getcwd(), "src", "terra_geospatial_platform", "templates")
+    if os.path.exists(alt_templates):
+        TEMPLATES_DIR = alt_templates
+
+if not os.path.exists(STATIC_DIR):
+    alt_static = os.path.join(os.getcwd(), "src", "terra_geospatial_platform", "static")
+    if os.path.exists(alt_static):
+        STATIC_DIR = alt_static
+
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 def index(request: Request):
     """Sert la console tactique de commandement geospatiale TERRA."""
     template_file = os.path.join(TEMPLATES_DIR, "index.html")

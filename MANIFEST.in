@@ -1,0 +1,2 @@
+recursive-include src/terra_geospatial_platform/templates *
+recursive-include src/terra_geospatial_platform/static *

@@ -32,3 +32,12 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0.0"]
+
+[tool.setuptools.package-data]
+terra_geospatial_platform = [
+    "templates/**/*.html",
+    "templates/*.html",
+    "static/**/*",
+    "static/*"
+]
+
